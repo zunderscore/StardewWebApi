@@ -10,23 +10,7 @@ public class UIApi : ApiControllerBase
     [ApiEndpoint("/ui/showHudMessage")]
     public void ShowHUDMessage(string message, HUDMessageType? type = null, int? duration = null)
     {
-        if (type.HasValue)
-        {
-            if (Enum.IsDefined(type.Value))
-            {
-                UIUtilities.ShowHUDMessage(message, type.Value, duration);
-            }
-            else
-            {
-                Response.BadRequest($"Invalid type specified");
-                return;
-            }
-        }
-        else
-        {
-            UIUtilities.ShowHUDMessage(message, duration: duration);
-        }
-
+        UIUtilities.ShowHUDMessage(message, type, duration);
         Response.Ok(new ActionResult(true));
     }
 

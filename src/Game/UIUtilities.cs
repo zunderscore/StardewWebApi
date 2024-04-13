@@ -21,9 +21,9 @@ public enum ChatMessageType
 
 public static class UIUtilities
 {
-    public static void ShowHUDMessage(string message, HUDMessageType type = HUDMessageType.NewQuest, int? duration = null)
+    public static void ShowHUDMessage(string message, HUDMessageType? type = null, int? duration = null)
     {
-        var hudMessage = new HUDMessage(message, (int)type);
+        var hudMessage = new HUDMessage(message, (int)(type ?? HUDMessageType.NewQuest));
 
         if (duration.HasValue)
         {

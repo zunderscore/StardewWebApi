@@ -57,9 +57,17 @@ internal partial class WebServer
                         }
                     }
 
-                    if (param.ParameterType.IsEnum)
+                    if (param.ParameterType.IsEnum || Nullable.GetUnderlyingType(param.ParameterType)?.IsEnum == true)
                     {
-                        if (Enum.TryParse(param.ParameterType, context.Request.QueryString[param.Name], true, out var result))
+                        var enumType = (param.ParameterType.IsNullable()
+                            ? Nullable.GetUnderlyingType(param.ParameterType)
+                            : param.ParameterType)!;
+
+                        if (Enum.TryParse(enumType, context.Request.QueryString[param.Name], true, out var result)
+                            && ((result is null && param.ParameterType.IsNullable())
+                                 || (result is not null && Enum.IsDefined(enumType, result))
+                            )
+                        )
                         {
                             parameters.Add(result);
                             continue;
@@ -99,9 +107,18 @@ internal partial class WebServer
         catch (Exception ex)
         {
             SMAPIWrapper.Instance.Log($"Error populating endpoint parameters: {ex.Message}");
+            context.Response.ServerError(ex.Message);
         }
 
         outParams = null;
         return false;
+    }
+}
+
+public static class TypeExtensions
+{
+    public static bool IsNullable(this Type type)
+    {
+        return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
     }
 }
