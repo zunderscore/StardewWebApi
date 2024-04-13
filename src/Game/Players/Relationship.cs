@@ -29,7 +29,7 @@ public class Relationship
     public bool HasBeenGivenGiftToday => GiftsGivenToday > 0;
     public int GiftsGivenToday => _friendship.GiftsToday;
     public int GiftsGivenThisWeek => _friendship.GiftsThisWeek;
-    public WorldDate LastGiftDate => _friendship.LastGiftDate;
+    public Date? LastGiftDate => _friendship.LastGiftDate is not null ? new(_friendship.LastGiftDate) : null;
     public bool IsDating => _friendship.IsDating();
     public bool IsEngaged => _friendship.IsEngaged();
     public bool IsMarried => _friendship.IsMarried();

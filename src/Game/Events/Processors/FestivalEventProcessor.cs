@@ -1,4 +1,5 @@
 using StardewValley;
+using StardewWebApi.Server;
 
 namespace StardewWebApi.Game.Events.Processors;
 
@@ -38,7 +39,7 @@ internal class FestivalEventProcessor : IEventProcessor
     {
         WebServer.Instance.SendGameEvent("FestivalStarted", new
         {
-            Name = Game1.CurrentEvent.FestivalName
+            Game1.CurrentEvent.FestivalName
         });
     }
 
@@ -46,7 +47,7 @@ internal class FestivalEventProcessor : IEventProcessor
     {
         WebServer.Instance.SendGameEvent("FestivalEnded", new
         {
-            Name = _lastFestival!.FestivalName
+            _lastFestival!.FestivalName
         });
     }
 }

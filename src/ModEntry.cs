@@ -2,6 +2,7 @@
 using StardewModdingAPI.Events;
 using StardewWebApi.Game;
 using StardewWebApi.Game.Events;
+using StardewWebApi.Server;
 
 namespace StardewWebApi;
 

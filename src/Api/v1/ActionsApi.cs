@@ -1,5 +1,8 @@
+using StardewValley;
+using StardewWebApi.Game;
 using StardewWebApi.Game.Actions;
-using StardewWebApi.Types;
+using StardewWebApi.Game.Items;
+using StardewWebApi.Server;
 
 namespace StardewWebApi.Api.V1;
 
@@ -35,96 +38,60 @@ public class ActionsApi : ApiControllerBase
     }
 
     [ApiEndpoint("/action/giveMoney")]
-    public void GiveMoney()
+    public void GiveMoney(int amount = 1000)
     {
-        var amountRaw = Request.QueryString["amount"];
-
-        if (!String.IsNullOrWhiteSpace(amountRaw))
-        {
-            if (int.TryParse(amountRaw, out var amount))
-            {
-                PlayerActions.GiveMoney(amount);
-                Response.Ok(new ActionResult(true));
-            }
-            else
-            {
-                Response.BadRequest("amount must be valid integer");
-            }
-        }
-        else
-        {
-            Response.BadRequest("Missing field: amount");
-        }
+        PlayerActions.GiveMoney(amount);
+        Response.Ok(new ActionResult(true));
     }
 
     [ApiEndpoint("/action/giveItem")]
-    public void GiveItem()
+    public void GiveItem(string? itemId = null, string? itemName = null, int amount = 1, int quality = 0)
     {
-        var itemId = Request.QueryString["itemId"];
-        var name = Request.QueryString["name"];
-        var amountRaw = Request.QueryString["amount"];
-        var qualityRaw = Request.QueryString["quality"];
-
-        if (!String.IsNullOrWhiteSpace(itemId))
+        Item? item;
+        if (itemId is not null)
         {
-            PlayerActions.GiveItemByItemId(
-                itemId,
-                Int32.TryParse(amountRaw, out var amount) ? amount : 1,
-                Int32.TryParse(qualityRaw, out var quality) ? quality : 0
-            );
-
-            Response.Ok(new ActionResult(true));
+            item = ItemUtilities.GetItemByFullyQualifiedId(itemId, amount, quality);
+            if (item is null)
+            {
+                Response.BadRequest($"Item with ID '{itemId}' does not exist");
+                return;
+            }
         }
-        else if (!String.IsNullOrWhiteSpace(name))
+        else if (itemName is not null)
         {
-            PlayerActions.GiveItemByDisplayName(
-                name,
-                Int32.TryParse(amountRaw, out var amount) ? amount : 1,
-                Int32.TryParse(qualityRaw, out var quality) ? quality : 0
-            );
-
-            Response.Ok(new ActionResult(true));
+            item = ItemUtilities.GetItemByDisplayName(itemName, amount, quality);
+            if (item is null)
+            {
+                Response.BadRequest($"Item with name '{itemName}' does not exist");
+                return;
+            }
         }
         else
         {
-            Response.BadRequest("Either itemId or name must be specified");
+            Response.BadRequest($"Either {nameof(itemId)} or {nameof(itemName)} must be specified");
+            return;
         }
+
+        PlayerActions.GiveItem(item);
+        Response.Ok(new ActionResult(true));
     }
 
     [ApiEndpoint("/action/warpPlayer")]
-    public void WarpPlayer()
+    public void WarpPlayer(WarpLocation location)
     {
-        var locationRaw = Request.QueryString["location"];
-
-        if (!String.IsNullOrWhiteSpace(locationRaw))
+        if (Enum.IsDefined(location))
         {
-            if (Enum.TryParse(locationRaw, out WarpLocation location))
-            {
-                Response.Ok(PlayerActions.WarpPlayer(location));
-            }
-            else
-            {
-                Response.BadRequest("Invalid location specified");
-            }
+            Response.Ok(PlayerActions.WarpPlayer(location));
         }
         else
         {
-            Response.BadRequest("Missing field: location");
+            Response.BadRequest("Invalid location specified");
         }
     }
 
     [ApiEndpoint("/action/petFarmAnimal")]
-    public void PetFarmAnimal()
+    public void PetFarmAnimal(string name)
     {
-        var name = Request.QueryString["name"];
-
-        if (!String.IsNullOrWhiteSpace(name))
-        {
-            Response.Ok(PlayerActions.PetFarmAnimal(name));
-        }
-        else
-        {
-            Response.BadRequest("Missing field: name");
-        }
+        Response.Ok(PlayerActions.PetFarmAnimal(name));
     }
 }

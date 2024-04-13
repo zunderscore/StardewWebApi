@@ -1,16 +1,12 @@
-using StardewValley;
 using StardewWebApi.Game;
-using StardewWebApi.Game.Events;
-using StardewWebApi.Types;
 using System.Net;
-using System.Net.WebSockets;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-namespace StardewWebApi;
+namespace StardewWebApi.Server;
 
-internal class WebServer
+internal partial class WebServer
 {
     private WebServer()
     {
@@ -29,7 +25,6 @@ internal class WebServer
 
     private volatile bool _runListenLoop;
     private readonly List<MethodInfo> _apiEndpoints = new();
-    private readonly List<WebSocket> _webSocketConnections = new();
 
     private readonly HttpListener _listener = new()
     {
@@ -94,7 +89,7 @@ internal class WebServer
 
             if (String.IsNullOrEmpty(path))
             {
-                response.StatusCode = 500;
+                response.ServerError();
                 return;
             }
 
@@ -117,15 +112,15 @@ internal class WebServer
                 return apiAttribute.Path.ToLower() == path && apiAttribute.Method == context.Request.HttpMethod;
             });
 
-            if (endpoint is null)
-            {
-                SMAPIWrapper.Instance.Log($"No endpoint handler found for {context.Request.Url!.AbsolutePath}");
-                response.NotFound();
-            }
-            else
+            if (endpoint is not null)
             {
                 SMAPIWrapper.Instance.Log($"Found endpoint handler for {context.Request.Url!.AbsolutePath}");
                 ProcessEndpointRequest(endpoint, context);
+            }
+            else
+            {
+                SMAPIWrapper.Instance.Log($"No endpoint handler found for {context.Request.Url!.AbsolutePath}");
+                response.NotFound();
             }
         }
         catch (Exception ex)
@@ -134,84 +129,7 @@ internal class WebServer
             response.ServerError(ex);
         }
     }
-
-    private static void ProcessEndpointRequest(MethodInfo endpoint, HttpListenerContext context)
-    {
-        if ((endpoint.GetCustomAttribute<RequireLoadedGameAttribute>() != null
-            || endpoint.DeclaringType?.GetCustomAttribute<RequireLoadedGameAttribute>() != null)
-            && !Game1.hasLoadedGame)
-        {
-            context.Response.BadRequest("No save loaded. Please load a save and try again.");
-            return;
-        }
-
-        var controller = Activator.CreateInstance(endpoint.DeclaringType!);
-        (controller as ApiControllerBase)!.HttpContext = context;
-
-        endpoint.Invoke(controller, null);
-    }
-
-    private async Task ProcessWebSocketRequest(HttpListenerContext context)
-    {
-        try
-        {
-            var webSocketContext = await context.AcceptWebSocketAsync(null);
-            var webSocket = webSocketContext.WebSocket;
-
-            _webSocketConnections.Add(webSocket);
-            await webSocket.SendWebSocketMessageAsync(new GameEvent("Connected"));
-
-            var buffer = new byte[1024 * 4];
-            var receiveResult = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
-
-            while (!receiveResult.CloseStatus.HasValue)
-            {
-                var message = Encoding.UTF8.GetString(buffer, 0, receiveResult.Count);
-
-                switch (message)
-                {
-                    default:
-                        await webSocket.SendWebSocketMessageAsync(new ErrorResponse("Invalid command"));
-                        break;
-                }
-
-                receiveResult = await webSocket.ReceiveAsync(
-                    new ArraySegment<byte>(buffer), CancellationToken.None);
-            }
-
-            await webSocket.CloseAsync(
-                receiveResult.CloseStatus.Value,
-                receiveResult.CloseStatusDescription,
-                CancellationToken.None);
-
-            _webSocketConnections.Remove(webSocket);
-        }
-        catch (Exception ex)
-        {
-            SMAPIWrapper.Instance.Log($"Error processing WebSocket request: {ex.Message}");
-            context.Response.ServerError(ex);
-        }
-    }
-
-    public async void BroadcastWebSocketMessageAsync(object messageBody)
-    {
-        foreach (var webSocket in _webSocketConnections)
-        {
-            if (webSocket.State == WebSocketState.Open)
-            {
-                await webSocket.SendWebSocketMessageAsync(messageBody);
-            }
-        }
-    }
-
-    public void SendGameEvent(string eventName, object? data = null)
-    {
-        BroadcastWebSocketMessageAsync(new GameEvent(eventName, data));
-    }
 }
-
-internal record ErrorResponse(string Error);
 
 internal static class HttpListenerExtensions
 {
@@ -252,21 +170,13 @@ internal static class HttpListenerExtensions
         response.CreateResponse(404, errorMessage != null ? new ErrorResponse(errorMessage) : null);
     }
 
-    public static void ServerError(this HttpListenerResponse response, object responseBody)
+    public static void ServerError(this HttpListenerResponse response, string errorMessage)
+    {
+        response.ServerError(new ErrorResponse(errorMessage));
+    }
+
+    public static void ServerError(this HttpListenerResponse response, object? responseBody = null)
     {
         response.CreateResponse(500, responseBody);
-    }
-}
-
-internal static class WebSocketExtensions
-{
-    public static async Task SendWebSocketMessageAsync(this WebSocket webSocket, object messageBody)
-    {
-        await webSocket.SendAsync(
-            new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(messageBody, WebServer.SerializerOptions))),
-            WebSocketMessageType.Text,
-            true,
-            CancellationToken.None
-        );
     }
 }

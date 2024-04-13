@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace StardewWebApi.Types;
+namespace StardewWebApi.Server;
 
 public abstract class ApiControllerBase
 {

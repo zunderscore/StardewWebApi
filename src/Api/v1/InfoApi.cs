@@ -1,6 +1,7 @@
+using StardewWebApi.Game;
 using StardewWebApi.Game.Info;
 using StardewWebApi.Game.Players;
-using StardewWebApi.Types;
+using StardewWebApi.Server;
 
 namespace StardewWebApi.Api.V1;
 

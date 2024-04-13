@@ -1,30 +1,14 @@
-using System.Text.Json.Serialization;
 using StardewValley;
 using StardewWebApi.Game.NPCs;
 
 namespace StardewWebApi.Game.Info;
 
-public class DayInfo
+public class DayInfo : Date
 {
-    private readonly WorldDate _date;
-
-    public DayInfo(WorldDate date, string weather)
+    public DayInfo(WorldDate date, string weather) : base(date)
     {
-        _date = date;
         Weather = weather;
     }
-
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public Season Season => _date.Season;
-
-    public int Day => _date.DayOfMonth;
-
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public DayOfWeek DayOfWeek => _date.DayOfWeek;
-
-    public string ShortDayOfWeek => Game1.shortDayNameFromDayOfSeason(Day);
-
-    public int Year => _date.Year;
 
     public string Weather { get; }
 

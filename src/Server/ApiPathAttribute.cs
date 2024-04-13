@@ -1,4 +1,4 @@
-namespace StardewWebApi.Types;
+namespace StardewWebApi.Server;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class ApiEndpointAttribute : Attribute

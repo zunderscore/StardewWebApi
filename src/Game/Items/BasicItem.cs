@@ -13,7 +13,7 @@ public class BasicItem
 
     public static BasicItem? FromItem(Item? item)
     {
-        return item is null ? null : new(item);
+        return item is not null ? new(item) : null;
     }
 
     public string ItemId => _item.ItemId;

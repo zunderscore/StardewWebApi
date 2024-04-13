@@ -1,6 +1,7 @@
 using StardewValley;
 using StardewWebApi.Game.Animals;
 using StardewWebApi.Game.Items;
+using StardewWebApi.Server;
 
 namespace StardewWebApi.Game.Actions;
 
@@ -157,25 +158,5 @@ public static class PlayerActions
     public static void GiveItems(List<Item> items)
     {
         Game1.player.addItemsByMenuIfNecessary(items);
-    }
-
-    public static void GiveItemByItemId(string itemId, int amount = 1, int quality = 0)
-    {
-        var item = ItemUtilities.GetItemByFullyQualifiedId(itemId, amount, quality);
-
-        if (item != null)
-        {
-            GiveItem(item);
-        }
-    }
-
-    public static void GiveItemByDisplayName(string name, int amount = 1, int quality = 0)
-    {
-        var item = ItemUtilities.GetItemByDisplayName(name, amount, quality);
-
-        if (item != null)
-        {
-            GiveItem(item);
-        }
     }
 }

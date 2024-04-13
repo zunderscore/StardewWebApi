@@ -12,24 +12,25 @@ public class NPCInfo
         _npc = npc;
     }
 
-    public static NPCInfo? FromNPCName(string name)
+    public static NPCInfo? FromNPC(NPC? npc)
     {
-        var npc = NPCUtilities.GetNPCByName(name);
-
-        if (npc is null)
+        return npc switch
         {
-            return null;
-        }
-
-        return NPCUtilities.GetNPCType(npc) switch
-        {
-            NPCType.Villager => VillagerInfo.FromNPC(npc),
-            NPCType.Pet => PetInfo.FromNPC(npc),
-            _ => new NPCInfo(npc),
+            not null => NPCUtilities.GetNPCType(npc) switch
+            {
+                NPCType.Villager => new VillagerInfo(npc),
+                NPCType.Pet => new PetInfo(npc),
+                _ => new NPCInfo(npc),
+            },
+            _ => null
         };
     }
 
-    public int Id => _npc.id;
+    public static NPCInfo? FromNPCName(string name)
+    {
+        return FromNPC(NPCUtilities.GetNPCByName(name));
+    }
+
     public string Name => _npc.Name;
     public string DisplayName => _npc.displayName;
     public int Age => _npc.Age;

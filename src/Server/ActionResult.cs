@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace StardewWebApi.Game.Actions;
+namespace StardewWebApi.Server;
 
 public record ActionResult(
     bool Success,

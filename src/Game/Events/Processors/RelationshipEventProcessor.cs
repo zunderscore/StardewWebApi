@@ -1,6 +1,7 @@
 using StardewValley;
 using StardewWebApi.Game.NPCs;
 using StardewWebApi.Game.Players;
+using StardewWebApi.Server;
 
 namespace StardewWebApi.Game.Events.Processors;
 

@@ -1,122 +1,91 @@
+using StardewValley;
 using StardewWebApi.Game;
 using StardewWebApi.Game.Items;
-using StardewWebApi.Types;
+using StardewWebApi.Server;
 
 namespace StardewWebApi.Api.V1;
 
 public class UIApi : ApiControllerBase
 {
     [ApiEndpoint("/ui/showHudMessage")]
-    public void ShowHUDMessage()
+    public void ShowHUDMessage(string message, HUDMessageType? type = null, int? duration = null)
     {
-        var message = Request.QueryString["message"];
-        var typeRaw = Request.QueryString["type"];
-        var durationRaw = Request.QueryString["duration"];
-
-        if (!String.IsNullOrWhiteSpace(message))
+        if (type.HasValue)
         {
-            if (!String.IsNullOrWhiteSpace(typeRaw) && Enum.TryParse(typeRaw, true, out HUDMessageType type))
+            if (Enum.IsDefined(type.Value))
             {
-                UIUtilities.ShowHUDMessage(
-                    message,
-                    type,
-                    duration: Int32.TryParse(durationRaw, out var duration) ? duration : null
-                );
+                UIUtilities.ShowHUDMessage(message, type.Value, duration);
             }
             else
             {
-                UIUtilities.ShowHUDMessage(
-                    message,
-                    duration: Int32.TryParse(durationRaw, out var duration) ? duration : null
-                );
+                Response.BadRequest($"Invalid type specified");
+                return;
             }
         }
         else
         {
-            Response.BadRequest("Missing field: message");
+            UIUtilities.ShowHUDMessage(message, duration: duration);
         }
+
+        Response.Ok(new ActionResult(true));
     }
 
     [ApiEndpoint("/ui/showHudMessage/item")]
-    public void ShowHUDMessageForItem()
+    public void ShowHUDMessageForItem(
+        string message,
+        int? duration = null,
+        string? itemId = null,
+        string? itemName = null,
+        int amount = 1,
+        int quality = 0,
+        string? typeKey = null
+    )
     {
-        var itemId = Request.QueryString["itemId"];
-        var itemName = Request.QueryString["itemName"];
-        var message = Request.QueryString["message"];
-        var amountRaw = Request.QueryString["amount"];
-        var durationRaw = Request.QueryString["duration"];
-        var typeKey = Request.QueryString["typeKey"];
-
-        if (!String.IsNullOrWhiteSpace(itemId))
+        Item? item;
+        if (itemId is not null)
         {
-            UIUtilities.ShowHUDMessageForItem(
-                itemId,
-                message,
-                Int32.TryParse(amountRaw, out var amount) ? amount : 1,
-                Int32.TryParse(durationRaw, out var duration) ? duration : null,
-                typeKey
-            );
-        }
-        else if (!String.IsNullOrWhiteSpace(itemName))
-        {
-            var item = ItemUtilities.GetItemByDisplayName(itemName);
-
-            if (item != null)
+            item = ItemUtilities.GetItemByFullyQualifiedId(itemId, amount, quality);
+            if (item is null)
             {
-                UIUtilities.ShowHUDMessageForItem(
-                    item.QualifiedItemId,
-                    message,
-                    Int32.TryParse(amountRaw, out var amount) ? amount : 1,
-                    Int32.TryParse(durationRaw, out var duration) ? duration : null,
-                    typeKey
-                );
+                Response.BadRequest($"Item with ID '{itemId}' does not exist");
+                return;
             }
-            else
+        }
+        else if (itemName is not null)
+        {
+            item = ItemUtilities.GetItemByDisplayName(itemName, amount, quality);
+            if (item is null)
             {
-                Response.BadRequest("No item with that name exists");
+                Response.BadRequest($"Item with name '{itemName}' does not exist");
+                return;
             }
         }
         else
         {
-            Response.BadRequest("Either itemId or name must be specified");
+            Response.BadRequest($"Either {nameof(itemId)} or {nameof(itemName)} must be specified");
+            return;
         }
+
+        UIUtilities.ShowHUDMessageForItem(
+            item,
+            message,
+            duration,
+            typeKey
+        );
+        Response.Ok(new ActionResult(true));
     }
 
     [ApiEndpoint("/ui/showHudMessage/large")]
-    public void ShowLargeHUDMessage()
+    public void ShowLargeHUDMessage(string message)
     {
-        var message = Request.QueryString["message"];
-
-        if (!String.IsNullOrWhiteSpace(message))
-        {
-            UIUtilities.ShowLargeHUDMessage(message);
-        }
-        else
-        {
-            Response.BadRequest("Missing field: message");
-        }
+        UIUtilities.ShowLargeHUDMessage(message);
+        Response.Ok(new ActionResult(true));
     }
 
     [ApiEndpoint("/ui/showChatMessage")]
-    public void ShowChatMessage()
+    public void ShowChatMessage(string message, ChatMessageType type = ChatMessageType.None)
     {
-        var message = Request.QueryString["message"];
-        var typeRaw = Request.QueryString["type"];
-
-        if (!String.IsNullOrWhiteSpace(message))
-        {
-            if (!String.IsNullOrWhiteSpace(typeRaw) && Enum.TryParse(typeRaw, true, out ChatMessageType type))
-            {
-                UIUtilities.ShowChatMessage(message, type);
-            }
-            else
-            {
-                UIUtilities.ShowChatMessage(message);
-            }
-        }
-        else
-        {
-            Response.BadRequest("Missing field: message");
-        }
+        UIUtilities.ShowChatMessage(message, type);
+        Response.Ok(new ActionResult(true));
     }
 }

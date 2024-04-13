@@ -1,5 +1,6 @@
+using StardewWebApi.Game;
 using StardewWebApi.Game.NPCs;
-using StardewWebApi.Types;
+using StardewWebApi.Server;
 
 namespace StardewWebApi.Api.V1;
 
@@ -10,73 +11,40 @@ public class NPCApi : ApiControllerBase
     public void GetAllNPCs()
     {
         Response.Ok(NPCUtilities.GetAllNPCs()
-            .Select(n => NPCInfo.FromNPCName(n.Name)
+            .Select(n => NPCInfo.FromNPC(n)
         ));
     }
 
-    [ApiEndpoint("/npc")]
-    public void GetNPCByName()
+    [ApiEndpoint("/npcs/name")]
+    public void GetNPCByName(string name)
     {
-        var name = Request.QueryString["name"];
+        var npc = NPCInfo.FromNPCName(name);
 
-        if (!String.IsNullOrWhiteSpace(name))
+        if (npc is not null)
         {
-            var npc = NPCInfo.FromNPCName(name);
-
-            if (npc is null)
-            {
-                Response.NotFound();
-            }
-            else
-            {
-                Response.Ok(npc);
-            }
+            Response.Ok(npc);
         }
         else
         {
-            Response.BadRequest("Missing field: name");
+            Response.NotFound($"No NPC found with name '{name}'");
         }
     }
 
-    [ApiEndpoint("/npc/birthday")]
-    public void GetNPCByBirthday()
+    [ApiEndpoint("/npcs/birthday")]
+    public void GetNPCByBirthday(string season, int day)
     {
-        var season = Request.QueryString["season"];
+        var npcs = NPCUtilities.GetNPCsByBirthday(season, day)
+            .Select(n => NPCInfo.FromNPC(n));
 
-        if (!String.IsNullOrWhiteSpace(season))
-        {
-            var dayRaw = Request.QueryString["day"];
-
-            if (!String.IsNullOrWhiteSpace(dayRaw))
-            {
-                if (Int32.TryParse(dayRaw, out var day))
-                {
-                    var npcs = NPCUtilities.GetNPCsByBirthday(season, day)
-                        .Select(n => NPCInfo.FromNPCName(n.Name));
-
-                    Response.Ok(npcs);
-                }
-                else
-                {
-                    Response.BadRequest("day must be numeric");
-                }
-            }
-            else
-            {
-                Response.BadRequest("Missing field: day");
-            }
-        }
-        else
-        {
-            Response.BadRequest("Missing field: season");
-        }
+        Response.Ok(npcs);
     }
 
-    [ApiEndpoint("/pets")]
+    [ApiEndpoint("/npcs/pets")]
     public void GetAllPets()
     {
-        Response.Ok(NPCUtilities.GetAllNPCsOfType(NPCType.Pet)
-            .Select(n => NPCInfo.FromNPCName(n.Name)
-        ));
+        var npcs = NPCUtilities.GetAllNPCsOfType(NPCType.Pet)
+            .Select(n => NPCInfo.FromNPC(n));
+
+        Response.Ok(npcs);
     }
 }

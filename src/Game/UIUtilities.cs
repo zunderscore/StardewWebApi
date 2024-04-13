@@ -33,27 +33,22 @@ public static class UIUtilities
         Game1.addHUDMessage(hudMessage);
     }
 
-    public static void ShowHUDMessageForItem(string itemId, string? message = null, int amount = 1, int? duration = null, string? typeKey = null)
+    public static void ShowHUDMessageForItem(Item item, string? message = null, int? duration = null, string? typeKey = null)
     {
-        var itemMetadata = ItemRegistry.ResolveMetadata(itemId);
-        if (itemMetadata?.Exists() == true)
+        var hudMessage = HUDMessage.ForItemGained(item, item.Stack, typeKey);
+
+        if (!String.IsNullOrWhiteSpace(message))
         {
-            var item = itemMetadata.CreateItem(amount);
-            var hudMessage = HUDMessage.ForItemGained(item, amount, typeKey);
-
-            if (!String.IsNullOrWhiteSpace(message))
-            {
-                hudMessage.message = message;
-                hudMessage.type = $"{message}+{hudMessage.type}";
-            }
-
-            if (duration.HasValue)
-            {
-                hudMessage.timeLeft = duration.Value * 1000f;
-            }
-
-            Game1.addHUDMessage(hudMessage);
+            hudMessage.message = message;
+            hudMessage.type = $"{hudMessage.type}{message}";
         }
+
+        if (duration.HasValue)
+        {
+            hudMessage.timeLeft = duration.Value * 1000f;
+        }
+
+        Game1.addHUDMessage(hudMessage);
     }
 
     public static void ShowLargeHUDMessage(string message, int? duration = null)

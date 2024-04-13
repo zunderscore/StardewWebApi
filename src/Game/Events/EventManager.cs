@@ -2,6 +2,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewWebApi.Game.Events.Processors;
 using StardewWebApi.Game.Info;
+using StardewWebApi.Server;
 
 namespace StardewWebApi.Game.Events;
 
@@ -85,11 +86,7 @@ internal class EventManager
 
     private void OnDayEnding(object? sender, DayEndingEventArgs e)
     {
-        WebServer.Instance.SendGameEvent("DayEnding", new
-        {
-            Season = Game1.CurrentSeasonDisplayName,
-            Day = Game1.dayOfMonth
-        });
+        WebServer.Instance.SendGameEvent("DayEnding", GameInfo.GetDayInfo());
     }
 
     private void OnPlayerInventoryChanged(object? sender, InventoryChangedEventArgs e)
@@ -128,7 +125,7 @@ internal class EventManager
     {
         WebServer.Instance.SendGameEvent("PlayerLevelChanged", new
         {
-            e.Player.Name,
+            PlayerName = e.Player.Name,
             Skill = e.Skill.ToString(),
             e.OldLevel,
             e.NewLevel
@@ -139,7 +136,7 @@ internal class EventManager
     {
         WebServer.Instance.SendGameEvent("PlayerWarped", new
         {
-            e.Player.Name,
+            PlayerName = e.Player.Name,
             OldLocation = e.OldLocation.Name,
             NewLocation = e.NewLocation.Name
         });
