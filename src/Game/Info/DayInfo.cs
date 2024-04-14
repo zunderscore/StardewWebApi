@@ -12,7 +12,6 @@ public class DayInfo : Date
 
     public string Weather { get; }
 
-    public List<NPCStub> Birthdays => NPCUtilities.GetNPCsByBirthday(Season, Day)
-        .Select(n => n.CreateStub())
-        .ToList();
+    public IEnumerable<NPCStub> Birthdays => NPCUtilities.GetNPCsByBirthday(Season, Day)
+        .Select(n => n.CreateStub());
 }

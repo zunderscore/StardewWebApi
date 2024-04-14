@@ -53,12 +53,10 @@ public class Player
         BasicItem.FromItem(_player.leftRing.Value)
     );
 
-    public List<BasicSkill> Skills
+    public IEnumerable<BasicSkill> Skills
     {
         get
         {
-            var skills = new List<BasicSkill>();
-
             for (int x = 0; x < 5; x++)
             {
                 var level = _player.GetSkillLevel(x);
@@ -67,14 +65,11 @@ public class Player
                 if (level >= 5) professionIds.Add(_player.getProfessionForSkill(x, 5));
                 if (level >= 10) professionIds.Add(_player.getProfessionForSkill(x, 10));
 
-                skills.Add(new(x, level, professionIds));
+                yield return new(x, level, professionIds);
             }
-
-            return skills;
         }
     }
 
-    public List<Relationship> Relationships => _player.friendshipData.Keys
-        .Select(f => Relationship.FromFriendshipData(f, _player.friendshipData[f]))
-        .ToList();
+    public IEnumerable<Relationship> Relationships => _player.friendshipData.Keys
+        .Select(f => Relationship.FromFriendshipData(f, _player.friendshipData[f]));
 }

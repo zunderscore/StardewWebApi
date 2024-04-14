@@ -12,7 +12,7 @@ public class ModEntry : Mod
 
     public override void Entry(IModHelper helper)
     {
-        SMAPIWrapper.Instance.Initialize(this.Monitor, helper);
+        SMAPIWrapper.Instance.Initialize(Monitor, helper);
 
         helper.Events.GameLoop.GameLaunched += OnGameLaunched;
     }
@@ -23,6 +23,5 @@ public class ModEntry : Mod
         WebServer.Instance.StartWebServer();
 
         _eventManager = new EventManager();
-        _eventManager.RegisterEvents();
     }
 }

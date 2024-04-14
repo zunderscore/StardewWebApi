@@ -98,47 +98,26 @@ internal class RelationshipEventProcessor : IEventProcessor
         );
     }
 
-    private List<RelationshipChangedEventData> BuildRelationshipChangeData(IEnumerable<string> names)
-    {
-        var data = new List<RelationshipChangedEventData>();
-
-        foreach (var name in names)
-        {
-            data.Add(BuildRelationshipChangeData(name));
-        }
-
-        return data;
-    }
+    private IEnumerable<RelationshipChangedEventData> BuildRelationshipChangeData(IEnumerable<string> names) =>
+        names.Select(n => BuildRelationshipChangeData(n));
 
     private void TriggerFriendshipIncrease(string name)
     {
-        WebServer.Instance.SendGameEvent(
-            "FriendshipIncreased",
-            BuildRelationshipChangeData(name)
-        );
+        WebServer.Instance.SendGameEvent("FriendshipIncreased", BuildRelationshipChangeData(name));
     }
 
     private void TriggerMultipleFriendshipIncrease(IEnumerable<string> names)
     {
-        WebServer.Instance.SendGameEvent(
-            "MultipleFriendshipsIncreased",
-            BuildRelationshipChangeData(names)
-        );
+        WebServer.Instance.SendGameEvent("MultipleFriendshipsIncreased", BuildRelationshipChangeData(names));
     }
 
     private void TriggerFriendshipDecrease(string name)
     {
-        WebServer.Instance.SendGameEvent(
-            "FriendshipDecreased",
-            BuildRelationshipChangeData(name)
-        );
+        WebServer.Instance.SendGameEvent("FriendshipDecreased", BuildRelationshipChangeData(name));
     }
 
     private void TriggerMultipleFriendshipDecrease(IEnumerable<string> names)
     {
-        WebServer.Instance.SendGameEvent(
-            "MultipleFriendshipsDecreased",
-            BuildRelationshipChangeData(names)
-        );
+        WebServer.Instance.SendGameEvent("MultipleFriendshipsDecreased", BuildRelationshipChangeData(names));
     }
 }

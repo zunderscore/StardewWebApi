@@ -9,11 +9,13 @@ public class BasicSkill
 {
     private readonly List<int> _professionIds;
 
-    public BasicSkill(int id, int level, List<int>? professionIds = null)
+    public BasicSkill(int id, int level, IEnumerable<int>? professionIds = null)
     {
         Id = id;
         Level = level;
-        _professionIds = professionIds ?? new();
+        _professionIds = professionIds is not null
+            ? new(professionIds)
+            : new();
     }
 
     public int Id { get; }
@@ -23,9 +25,9 @@ public class BasicSkill
 
     public int Level { get; }
 
-    public List<NumericIdNameDescription> Professions => _professionIds.Select(id =>
+    public IEnumerable<NumericIdNameDescription> Professions => _professionIds.Select(id =>
         {
             var description = LevelUpMenu.getProfessionDescription(id);
             return new NumericIdNameDescription(id, description[0], description[1]);
-        }).ToList();
+        });
 }

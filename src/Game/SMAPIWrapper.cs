@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI;
 
 namespace StardewWebApi.Game;
@@ -9,8 +10,9 @@ public class SMAPIWrapper
     private static SMAPIWrapper? _instance;
     public static SMAPIWrapper Instance => _instance ??= new SMAPIWrapper();
 
-    public IMonitor? Monitor { get; private set; }
-    public IModHelper? Helper { get; private set; }
+    // The very first thing we do in the mod is call Initialize, so these are never null for the life of the mod
+    [NotNull] public IMonitor? Monitor { get; private set; }
+    [NotNull] public IModHelper? Helper { get; private set; }
 
     public void Initialize(IMonitor monitor, IModHelper helper)
     {

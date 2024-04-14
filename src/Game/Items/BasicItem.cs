@@ -10,11 +10,9 @@ public class BasicItem
     {
         _item = item;
     }
-
-    public static BasicItem? FromItem(Item? item)
-    {
-        return item is not null ? new(item) : null;
-    }
+    public static BasicItem? FromItem(Item? item) => item is not null ? new(item) : null;
+    public static IEnumerable<BasicItem> FromItems(IEnumerable<Item> items) =>
+        items.Select(i => FromItem(i)!);
 
     public string ItemId => _item.ItemId;
     public string TypeDefinitionId => _item.TypeDefinitionId;

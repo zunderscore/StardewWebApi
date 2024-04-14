@@ -3,6 +3,14 @@ using StardewWebApi.Server;
 
 namespace StardewWebApi.Game.Events.Processors;
 
+public record FestivalStartedEventData(
+    string FestivalName
+);
+
+public record FestivalEndedEventData(
+    string FestivalName
+);
+
 internal class FestivalEventProcessor : IEventProcessor
 {
     private Event? _lastFestival;
@@ -37,17 +45,17 @@ internal class FestivalEventProcessor : IEventProcessor
 
     private void TriggerFestivalStart()
     {
-        WebServer.Instance.SendGameEvent("FestivalStarted", new
-        {
+        WebServer.Instance.SendGameEvent("FestivalStarted", new FestivalStartedEventData
+        (
             Game1.CurrentEvent.FestivalName
-        });
+        ));
     }
 
     private void TriggerFestivalEnd()
     {
-        WebServer.Instance.SendGameEvent("FestivalEnded", new
-        {
+        WebServer.Instance.SendGameEvent("FestivalEnded", new FestivalEndedEventData
+        (
             _lastFestival!.FestivalName
-        });
+        ));
     }
 }

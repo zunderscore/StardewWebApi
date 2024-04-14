@@ -155,8 +155,8 @@ public static class PlayerActions
         Game1.player.addItemByMenuIfNecessary(item);
     }
 
-    public static void GiveItems(List<Item> items)
+    public static void GiveItems(IEnumerable<Item> items)
     {
-        Game1.player.addItemsByMenuIfNecessary(items);
+        Game1.player.addItemsByMenuIfNecessary(new List<Item>(items));
     }
 }
