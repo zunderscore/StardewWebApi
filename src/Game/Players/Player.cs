@@ -40,6 +40,7 @@ public class Player
     public int MaxStamina => _player.MaxStamina;
     public int Health => _player.health;
     public int MaxHealth => _player.maxHealth;
+    public string Location => _player.currentLocation.Name;
     public double DailyLuck => _player.DailyLuck;
     public string DailyLuckFriendlyValue => DailyLuck.ToString("P");
     public string DailyLuckDescription => new TV().getFortuneForecast(_player);
