@@ -106,7 +106,7 @@ public static class NPCUtilities
         {
             foreach (var npc in location.characters)
             {
-                if (npc.Birthday_Season != null
+                if (npc.Birthday_Season is not null
                     && npc.Birthday_Season?.ToLower() == season
                     && npc.Birthday_Day == day
                 )

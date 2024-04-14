@@ -126,7 +126,7 @@ public static class PlayerActions
         var result = new ActionResult(true);
         var animal = AnimalUtilities.GetFarmAnimalByName(animalName);
 
-        if (animal != null)
+        if (animal is not null)
         {
             if (animal.wasAutoPet.Value)
             {

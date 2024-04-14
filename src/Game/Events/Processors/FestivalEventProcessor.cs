@@ -31,12 +31,12 @@ internal class FestivalEventProcessor : IEventProcessor
             return;
         }
 
-        if (_lastFestival == null && Game1.CurrentEvent != null && Game1.CurrentEvent.isFestival)
+        if (_lastFestival is null && Game1.CurrentEvent is not null && Game1.CurrentEvent.isFestival)
         {
             TriggerFestivalStart();
             _lastFestival = Game1.CurrentEvent;
         }
-        else if (_lastFestival != null && Game1.CurrentEvent == null)
+        else if (_lastFestival is not null && Game1.CurrentEvent is null)
         {
             TriggerFestivalEnd();
             _lastFestival = null;

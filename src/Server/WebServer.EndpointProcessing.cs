@@ -11,8 +11,8 @@ internal partial class WebServer
 {
     private static void ProcessEndpointRequest(MethodInfo endpoint, HttpListenerContext context)
     {
-        if ((endpoint.GetCustomAttribute<RequireLoadedGameAttribute>() != null
-            || endpoint.DeclaringType?.GetCustomAttribute<RequireLoadedGameAttribute>() != null)
+        if ((endpoint.GetCustomAttribute<RequireLoadedGameAttribute>() is not null
+            || endpoint.DeclaringType?.GetCustomAttribute<RequireLoadedGameAttribute>() is not null)
             && !Game1.hasLoadedGame)
         {
             context.Response.BadRequest("No save loaded. Please load a save and try again.");
@@ -119,6 +119,6 @@ public static class TypeExtensions
 {
     public static bool IsNullable(this Type type)
     {
-        return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
+        return !type.IsValueType || Nullable.GetUnderlyingType(type) is not null;
     }
 }

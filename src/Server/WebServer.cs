@@ -144,7 +144,7 @@ internal static class HttpListenerExtensions
     public static void CreateResponse(this HttpListenerResponse response, int statusCode, object? responseBody = null)
     {
         response.StatusCode = statusCode;
-        if (responseBody != null)
+        if (responseBody is not null)
         {
             response.WriteResponseBody(responseBody);
         }
@@ -167,7 +167,7 @@ internal static class HttpListenerExtensions
 
     public static void NotFound(this HttpListenerResponse response, string? errorMessage = null)
     {
-        response.CreateResponse(404, errorMessage != null ? new ErrorResponse(errorMessage) : null);
+        response.CreateResponse(404, errorMessage is not null ? new ErrorResponse(errorMessage) : null);
     }
 
     public static void ServerError(this HttpListenerResponse response, string errorMessage)

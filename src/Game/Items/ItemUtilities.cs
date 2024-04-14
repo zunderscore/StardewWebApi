@@ -25,9 +25,9 @@ public static class ItemUtilities
                 return it.GetAllData().FirstOrDefault(i =>
                     i.DisplayName.ToLower() == itemName
                 );
-            }).FirstOrDefault(i => i != null);
+            }).FirstOrDefault(i => i is not null);
 
-            return parsedItemData != null
+            return parsedItemData is not null
                 ? GetItemByFullyQualifiedId(parsedItemData.QualifiedItemId, amount, quality)
                 : null;
         }
