@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewWebApi.Game.Info;
@@ -26,17 +25,7 @@ public abstract class DayEventDataBase
         _dayInfo = dayInfo;
     }
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public Season Season => _dayInfo.Season;
-
-    public int Day => _dayInfo.Day;
-
-    public int Year => _dayInfo.Year;
-
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public DayOfWeek DayOfWeek => _dayInfo.DayOfWeek;
-
-    public string ShortDayOfWeek => _dayInfo.ShortDayOfWeek;
+    public Date Date => _dayInfo.Date;
 
     public string Weather => _dayInfo.Weather;
 
@@ -149,7 +138,7 @@ public class DefaultEventProcessor : IEventProcessor
     {
         WebServer.Instance.SendGameEvent("DayStarted", new DayStartedEventData
         (
-            GameInfo.GetDayInfo()
+            DayInfo.Today
         ));
     }
 
@@ -157,7 +146,7 @@ public class DefaultEventProcessor : IEventProcessor
     {
         WebServer.Instance.SendGameEvent("DayEnding", new DayEndingEventData
         (
-            GameInfo.GetDayInfo()
+            DayInfo.Today
         ));
     }
 

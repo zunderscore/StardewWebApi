@@ -3,15 +3,13 @@ using StardewWebApi.Game.NPCs;
 
 namespace StardewWebApi.Game.Info;
 
-public class DayInfo : Date
+public record DayInfo(
+    Date Date,
+    string Weather
+)
 {
-    public DayInfo(WorldDate date, string weather) : base(date)
-    {
-        Weather = weather;
-    }
+    public static DayInfo Today => new(Date.Today, Game1.getFarm().GetWeather().Weather);
 
-    public string Weather { get; }
-
-    public IEnumerable<NPCStub> Birthdays => NPCUtilities.GetNPCsByBirthday(Season, Day)
+    public IEnumerable<NPCStub> Birthdays => NPCUtilities.GetNPCsByBirthday(Date.Season, Date.Day)
         .Select(n => n.CreateStub());
 }

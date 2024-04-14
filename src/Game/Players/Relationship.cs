@@ -5,25 +5,24 @@ namespace StardewWebApi.Game.Players;
 
 public class Relationship
 {
-    private readonly NPC _npc;
     private readonly Friendship _friendship;
 
-    private Relationship(NPC npc, Friendship friendship)
+    private Relationship(NPCStub npc, Friendship friendship)
     {
-        _npc = npc;
+        NPC = npc;
         _friendship = friendship;
     }
 
     public static Relationship FromFriendshipData(string name, Friendship friendship)
     {
-        var npc = NPCUtilities.GetNPCByName(name)!;
+        var npc = NPCUtilities.GetNPCByName(name)!.CreateStub();
 
         return new(npc, friendship);
     }
 
     public static int GetHeartsFromPoints(int points) => (int)Math.Floor(points / 250D);
 
-    public NPCStub NPC => _npc.CreateStub();
+    public NPCStub NPC { get; }
     public int Points => _friendship.Points;
     public int Hearts => GetHeartsFromPoints(Points);
     public bool HasBeenGivenGiftToday => GiftsGivenToday > 0;

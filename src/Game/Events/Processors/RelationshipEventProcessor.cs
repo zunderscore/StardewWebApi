@@ -5,45 +5,55 @@ using StardewWebApi.Server;
 
 namespace StardewWebApi.Game.Events.Processors;
 
-internal record TrackedRelationship(int Points);
+internal record TrackedRelationship(
+    int Points,
+    bool IsDating,
+    bool IsEngaged
+);
 
-public class RelationshipChangedEventData
+internal record TrackedSpouse(
+    string Name,
+    bool IsRoommate
+);
+
+public record RelationshipChangedEventData(
+    NPCStub NPC,
+    int PreviousPoints,
+    int NewPoints
+)
 {
-    private readonly NPC _npc;
-
-    public RelationshipChangedEventData(string npcName, int previousPoints, int newPoints)
-    {
-        _npc = NPCUtilities.GetNPCByName(npcName)!;
-        PreviousPoints = previousPoints;
-        NewPoints = newPoints;
-    }
-
-    public NPCStub NPC => _npc.CreateStub();
-    public int PreviousPoints { get; }
-    public int NewPoints { get; }
     public int PreviousHearts => Relationship.GetHeartsFromPoints(PreviousPoints);
     public int NewHearts => Relationship.GetHeartsFromPoints(NewPoints);
 }
 
+public record PlayerStartedDatingEventData(
+    NPCStub NPC
+);
+
+public record PlayerEngagedEventData(
+    NPCStub NPC
+);
+
+public record PlayerMarriedEventData(
+    NPCStub NPC,
+    bool IsRoommate
+);
+
+public record PlayerDivorcedEventData(
+    NPCStub NPC,
+    bool WasRoommate
+);
+
 internal class RelationshipEventProcessor : IEventProcessor
 {
     private readonly Dictionary<string, TrackedRelationship> _relationships = new();
+    private TrackedSpouse? _spouse = null;
 
     public void Initialize() { }
 
     public void InitializeGameData()
     {
         RefreshFriendshipList();
-    }
-
-    private void RefreshFriendshipList()
-    {
-        foreach (var name in Game1.player.friendshipData.Keys)
-        {
-            _relationships[name] = new(
-                Game1.player.friendshipData[name].Points
-            );
-        }
     }
 
     public void ProcessEvents()
@@ -66,33 +76,64 @@ internal class RelationshipEventProcessor : IEventProcessor
             {
                 decreasedFriendships.Add(name);
             }
+
+            if (Game1.player.friendshipData[name].IsDating() != _relationships[name].IsDating)
+            {
+                TriggerStartedDating(name);
+            }
+
+            if (Game1.player.friendshipData[name].IsEngaged() != _relationships[name].IsEngaged)
+            {
+                TriggerEngaged(name);
+            }
         }
 
         if (increasedFriendships.Count == 1)
         {
-            TriggerFriendshipIncrease(increasedFriendships[0]);
+            TriggerFriendshipIncreased(increasedFriendships[0]);
         }
         else if (increasedFriendships.Count > 1)
         {
-            TriggerMultipleFriendshipIncrease(increasedFriendships);
+            TriggerMultipleFriendshipIncreased(increasedFriendships);
         }
 
         if (decreasedFriendships.Count == 1)
         {
-            TriggerFriendshipDecrease(decreasedFriendships[0]);
+            TriggerFriendshipDecreased(decreasedFriendships[0]);
         }
         else if (decreasedFriendships.Count > 1)
         {
-            TriggerMultipleFriendshipDecrease(decreasedFriendships);
+            TriggerMultipleFriendshipDecreased(decreasedFriendships);
+        }
+
+        if (Game1.player.spouse != _spouse?.Name)
+        {
+            TriggerSpouseChanged();
+
+            _spouse = Game1.player.spouse is not null
+                ? new TrackedSpouse(Game1.player.spouse, Game1.player.hasRoommate())
+                : null;
         }
 
         RefreshFriendshipList();
     }
 
+    private void RefreshFriendshipList()
+    {
+        foreach (var name in Game1.player.friendshipData.Keys)
+        {
+            _relationships[name] = new(
+                Game1.player.friendshipData[name].Points,
+                Game1.player.friendshipData[name].IsDating(),
+                Game1.player.friendshipData[name].IsEngaged()
+            );
+        }
+    }
+
     private RelationshipChangedEventData BuildRelationshipChangeData(string name)
     {
         return new(
-            name,
+            NPCUtilities.GetNPCByName(name)!.CreateStub(),
             Game1.player.friendshipData[name].Points,
             _relationships[name].Points
         );
@@ -101,23 +142,55 @@ internal class RelationshipEventProcessor : IEventProcessor
     private IEnumerable<RelationshipChangedEventData> BuildRelationshipChangeData(IEnumerable<string> names) =>
         names.Select(n => BuildRelationshipChangeData(n));
 
-    private void TriggerFriendshipIncrease(string name)
+    private void TriggerFriendshipIncreased(string name)
     {
         WebServer.Instance.SendGameEvent("FriendshipIncreased", BuildRelationshipChangeData(name));
     }
 
-    private void TriggerMultipleFriendshipIncrease(IEnumerable<string> names)
+    private void TriggerMultipleFriendshipIncreased(IEnumerable<string> names)
     {
         WebServer.Instance.SendGameEvent("MultipleFriendshipsIncreased", BuildRelationshipChangeData(names));
     }
 
-    private void TriggerFriendshipDecrease(string name)
+    private void TriggerFriendshipDecreased(string name)
     {
         WebServer.Instance.SendGameEvent("FriendshipDecreased", BuildRelationshipChangeData(name));
     }
 
-    private void TriggerMultipleFriendshipDecrease(IEnumerable<string> names)
+    private void TriggerMultipleFriendshipDecreased(IEnumerable<string> names)
     {
         WebServer.Instance.SendGameEvent("MultipleFriendshipsDecreased", BuildRelationshipChangeData(names));
+    }
+
+    private void TriggerStartedDating(string name)
+    {
+        WebServer.Instance.SendGameEvent("PlayerStartedDating", new PlayerStartedDatingEventData(
+            NPCUtilities.GetNPCByName(name)!.CreateStub()
+        ));
+    }
+
+    private void TriggerEngaged(string name)
+    {
+        WebServer.Instance.SendGameEvent("PlayerEngaged", new PlayerEngagedEventData(
+            NPCUtilities.GetNPCByName(name)!.CreateStub()
+        ));
+    }
+
+    private void TriggerSpouseChanged()
+    {
+        if (_spouse is null)
+        {
+            WebServer.Instance.SendGameEvent("PlayerMarried", new PlayerMarriedEventData(
+                NPCUtilities.GetNPCByName(Game1.player.spouse)!.CreateStub(),
+                Game1.player.hasRoommate()
+            ));
+        }
+        else
+        {
+            WebServer.Instance.SendGameEvent("PlayerDivorced", new PlayerDivorcedEventData(
+                NPCUtilities.GetNPCByName(_spouse.Name)!.CreateStub(),
+                _spouse.IsRoommate
+            ));
+        }
     }
 }
