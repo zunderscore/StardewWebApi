@@ -14,8 +14,9 @@ It's my first game mod, so be gentle.
 ### NPC Info
 
 - `/npcs`: Gets a basic list of all named NPCs
-- `/npc`: Gets a specific NPC by name
-- `/npc/birthday`: Gets a list of all NPCs with a birthday on the specified day of the season
+- `/npcs/name`: Gets a specific NPC by name
+- `/npcs/birthday`: Gets a list of all NPCs with a birthday on the specified day of the season
+- `/npcs/pets`: Gets a list of all pet NPCs
 
 ## Actions
 
