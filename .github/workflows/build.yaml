@@ -4,7 +4,7 @@ env:
   dotnet_version: 6.0.x
   project_path: ./src
   project_name: StardewWebApi
-  build_path: bin/Release/net6.0
+  build_path: bin/Release/net6.0/
 
 on:
   workflow_dispatch:
