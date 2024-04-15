@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Launch Stardew via SMAPI",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "StardewModdingAPI.exe",
+            "cwd": "${input:GamePath}",
+            "externalConsole": true,
+            "preLaunchTask": "${defaultBuildTask}"
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processName": "StardewModdingAPI.exe"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "GamePath",
+            "type": "promptString",
+            "description": "Path to Stardew Valley game files",
+            "default": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Stardew Valley"
+        }
+    ]
+}
