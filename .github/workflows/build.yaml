@@ -2,7 +2,7 @@ name: .NET Build
 
 env:
   dotnet_version: 6.0.x
-  project_path: ./src
+  project_path: ./src/
   project_name: StardewWebApi
   build_path: bin/Release/net6.0/
 
