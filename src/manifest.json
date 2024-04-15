@@ -6,5 +6,8 @@
     "UniqueID": "zunderscore.StardewWebApi",
     "EntryDll": "StardewWebApi.dll",
     "MinimumApiVersion": "4.0.0",
-    "UpdateKeys": []
+    "UpdateKeys": [
+        "GitHub:zunderscore/StardewWebApi",
+        "Nexus:22540"
+    ]
 }
