@@ -18,6 +18,7 @@ internal class EventManager
 
         _eventProcessors.ForEach(e => e.Initialize());
 
+        SMAPIWrapper.Instance.Helper.Events.GameLoop.OneSecondUpdateTicked += OnOneSecondUpdateTicked;
         SMAPIWrapper.Instance.Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
     }
 
