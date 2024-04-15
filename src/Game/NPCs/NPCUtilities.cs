@@ -17,15 +17,7 @@ public static class NPCUtilities
 {
     public static List<NPC> GetAllNPCs()
     {
-        var npcs = new List<NPC>();
-
-        Utility.ForEachCharacter((npc) =>
-        {
-            npcs.Add(npc);
-            return true;
-        });
-
-        return npcs.Distinct().ToList();
+        return Utility.getAllCharacters().Distinct().ToList();
     }
 
     public static NPCType GetNPCType(NPC npc)

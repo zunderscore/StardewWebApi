@@ -134,8 +134,8 @@ internal class RelationshipEventProcessor : IEventProcessor
     {
         return new(
             NPCUtilities.GetNPCByName(name)!.CreateStub(),
-            Game1.player.friendshipData[name].Points,
-            _relationships[name].Points
+            _relationships[name].Points,
+            Game1.player.friendshipData[name].Points
         );
     }
 
