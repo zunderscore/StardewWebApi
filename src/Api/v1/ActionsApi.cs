@@ -77,11 +77,11 @@ public class ActionsApi : ApiControllerBase
     }
 
     [ApiEndpoint("/action/warpPlayer")]
-    public void WarpPlayer(WarpLocation location)
+    public void WarpPlayer(WarpLocation location, bool playWarpAnimation = true)
     {
         if (Enum.IsDefined(location))
         {
-            Response.Ok(PlayerActions.WarpPlayer(location));
+            Response.Ok(PlayerActions.WarpPlayer(location, playWarpAnimation));
         }
         else
         {

@@ -1,6 +1,7 @@
+using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.Extensions;
 using StardewWebApi.Game.Animals;
-using StardewWebApi.Game.Items;
 using StardewWebApi.Server;
 
 namespace StardewWebApi.Game.Actions;
@@ -12,7 +13,8 @@ public enum WarpLocation
     Beach,
     Mountain,
     Desert,
-    Island
+    Island,
+    FrontDoor
 }
 
 public static class PlayerActions
@@ -63,7 +65,7 @@ public static class PlayerActions
         return locations[Random.Shared.Next(0, locations.Count)];
     }
 
-    public static ActionResult WarpPlayer(WarpLocation location = WarpLocation.Random)
+    public static ActionResult WarpPlayer(WarpLocation location = WarpLocation.Random, bool playWarpAnimation = true)
     {
         var result = new ActionResult(true);
 
@@ -81,35 +83,86 @@ public static class PlayerActions
                 throw new Exception("Can't warp to that location yet!");
             }
 
-            switch (location)
+            var who = Game1.player;
+
+            void warpDelegate()
             {
-                case WarpLocation.Farm:
-                    Game1.player.resetState();
-                    Game1.warpFarmer("Farm", 48, 7, false);
-                    break;
+                switch (location)
+                {
+                    case WarpLocation.Farm:
+                        Game1.warpFarmer("Farm", 48, 7, false);
+                        break;
 
-                case WarpLocation.Beach:
-                    Game1.player.resetState();
-                    Game1.warpFarmer("Beach", 20, 4, false);
-                    break;
+                    case WarpLocation.Beach:
+                        Game1.warpFarmer("Beach", 20, 4, false);
+                        break;
 
-                case WarpLocation.Mountain:
-                    Game1.player.resetState();
-                    Game1.warpFarmer("Mountain", 31, 20, false);
-                    break;
+                    case WarpLocation.Mountain:
+                        Game1.warpFarmer("Mountain", 31, 20, false);
+                        break;
 
-                case WarpLocation.Desert:
-                    Game1.player.resetState();
-                    Game1.warpFarmer("Desert", 35, 43, false);
-                    break;
+                    case WarpLocation.Desert:
+                        Game1.warpFarmer("Desert", 35, 43, false);
+                        break;
 
-                case WarpLocation.Island:
-                    Game1.player.resetState();
-                    Game1.warpFarmer("IslandSouth", 11, 11, false);
-                    break;
+                    case WarpLocation.Island:
+                        Game1.warpFarmer("IslandSouth", 11, 11, false);
+                        break;
 
-                default:
-                    throw new Exception("Unknown warp location");
+                    case WarpLocation.FrontDoor:
+                    default:
+                        var frontDoorCoords = Utility.getHomeOfFarmer(Game1.player).getFrontDoorSpot();
+                        Game1.warpFarmer("Farm", frontDoorCoords.X, frontDoorCoords.Y, false);
+                        break;
+                }
+
+                if (playWarpAnimation)
+                {
+                    Game1.fadeToBlackAlpha = 0.99f;
+                    Game1.screenGlow = false;
+                    who.temporarilyInvincible = false;
+                    who.temporaryInvincibilityTimer = 0;
+                    Game1.displayFarmer = true;
+                    who.CanMove = true;
+                }
+            }
+
+            // Replicate the animation that the totems/wand plays
+            if (playWarpAnimation)
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    Game1.Multiplayer.broadcastSprites(who.currentLocation, new TemporaryAnimatedSprite(354, Game1.random.Next(25, 75), 6, 1, new Vector2(Game1.random.Next((int)who.position.X - 256, (int)who.position.X + 192), Game1.random.Next((int)who.position.Y - 256, (int)who.position.Y + 192)), flicker: false, Game1.random.NextBool()));
+                }
+                who.playNearbySoundAll("wand");
+                Game1.displayFarmer = false;
+                who.temporarilyInvincible = true;
+                who.temporaryInvincibilityTimer = -2000;
+                who.Halt();
+                who.faceDirection(2);
+                who.CanMove = false;
+                who.freezePause = 2000;
+                Game1.flashAlpha = 1f;
+                DelayedAction.fadeAfterDelay(warpDelegate, 1000);
+                Rectangle boundingBox = who.GetBoundingBox();
+                new Rectangle(boundingBox.X, boundingBox.Y, 64, 64).Inflate(192, 192);
+                int num = 0;
+                Point tilePoint = who.TilePoint;
+                for (int num2 = tilePoint.X + 8; num2 >= tilePoint.X - 8; num2--)
+                {
+                    Game1.Multiplayer.broadcastSprites(who.currentLocation, new TemporaryAnimatedSprite(6, new Vector2(num2, tilePoint.Y) * 64f, Color.White, 8, flipped: false, 50f)
+                    {
+                        layerDepth = 1f,
+                        delayBeforeAnimationStart = num * 25,
+                        motion = new Vector2(-0.25f, 0f)
+                    });
+                    num++;
+                }
+            }
+            else
+            {
+                Game1.player.resetState();
+                warpDelegate();
             }
         }
         catch (Exception ex)
