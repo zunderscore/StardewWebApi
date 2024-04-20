@@ -1,9 +1,9 @@
-namespace StardewWebApi.Server;
+namespace StardewWebApi.Server.Routing;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class ApiEndpointAttribute : Attribute
+public class RouteAttribute : Attribute
 {
-    public ApiEndpointAttribute(string path, string method = "GET")
+    public RouteAttribute(string path, string method = "GET")
     {
         Path = path;
         Method = method;

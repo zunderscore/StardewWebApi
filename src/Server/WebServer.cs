@@ -1,6 +1,5 @@
 using StardewWebApi.Game;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
@@ -10,21 +9,13 @@ internal partial class WebServer
 {
     private WebServer()
     {
-        _apiEndpoints = Assembly.GetCallingAssembly()
-            .GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(ApiControllerBase)))
-            .SelectMany(t => t.GetMethods())
-            .Where(m => m.GetCustomAttributes(typeof(ApiEndpointAttribute), false).Length > 0)
-            .ToList();
+        CreateRouteTable();
     }
 
     private static WebServer? _instance;
     public static WebServer Instance => _instance ??= new WebServer();
 
-    public static SemaphoreSlim ListenerLock = new(1, 1);
-
     private volatile bool _runListenLoop;
-    private readonly List<MethodInfo> _apiEndpoints = new();
 
     private readonly HttpListener _listener = new()
     {
@@ -105,21 +96,16 @@ internal partial class WebServer
                 }
             }
 
-            var endpoint = _apiEndpoints.FirstOrDefault(e =>
-            {
-                var apiAttribute = e.GetCustomAttribute<ApiEndpointAttribute>()!;
+            var route = FindRoute(context.Request);
 
-                return apiAttribute.Path.ToLower() == path && apiAttribute.Method == context.Request.HttpMethod;
-            });
-
-            if (endpoint is not null)
+            if (route is not null)
             {
-                SMAPIWrapper.Instance.Log($"Found endpoint handler for {context.Request.Url!.AbsolutePath}");
-                ProcessEndpointRequest(endpoint, context);
+                SMAPIWrapper.Instance.Log($"Found matching route for {context.Request.Url!.AbsolutePath}");
+                ProcessEndpointRequest(route, context);
             }
             else
             {
-                SMAPIWrapper.Instance.Log($"No endpoint handler found for {context.Request.Url!.AbsolutePath}");
+                SMAPIWrapper.Instance.Log($"No matching route found for {context.Request.Url!.AbsolutePath}");
                 response.NotFound();
             }
         }

@@ -14,8 +14,8 @@ It's my first game mod, so be gentle.
 ### NPC Info
 
 - `/npcs`: Gets a basic list of all named NPCs
-- `/npcs/name`: Gets a specific NPC by name
-- `/npcs/birthday`: Gets a list of all NPCs with a birthday on the specified day of the season
+- `/npcs/name/{name}`: Gets a specific NPC by name
+- `/npcs/birthday/{season}/{day}`: Gets a list of all NPCs whose birthday is on the specified day of the specified season
 - `/npcs/pets`: Gets a list of all pet NPCs
 
 ## Actions
@@ -33,10 +33,11 @@ It's my first game mod, so be gentle.
 - `/action/passOut`: Fully drains the player's energy/stamina, causing them to pass out
 - `/action/fullyHeal`: Fully refills the player's health
 - `/action/knockOut`: Fully drains the player's health, causing them to be knocked out/die
-- `/action/giveMoney`: Gives money to/takes money away from the player
-- `/action/giveItem`: Attempts to add the specified item to the player's inventory
-- `/action/warpPlayer`: Warps the player to the specified location
-- `/action/petFarmAnimal`: Pets the named farm animal (i.e. chickens, cows, etc., but not pets like dogs, cats, or turtles)
+- `/action/giveMoney/{amount}`: Gives money to/takes money away from the player
+- `/action/giveItem/name/{itemName}`: Attempts to add the specified item to the player's inventory, using the item's display name
+- `/action/giveItem/id/{itemId}`: Same as above, but using the item's fully qualified ID (e.g. `(F)1365`) instead
+- `/action/warpPlayer/{location}`: Warps the player to the specified location
+- `/action/petFarmAnimal/{name}`: Pets the named farm animal (i.e. chickens, cows, etc., but not pets like dogs, cats, or turtles)
 
 ## Events
 

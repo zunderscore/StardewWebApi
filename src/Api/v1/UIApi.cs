@@ -2,19 +2,20 @@ using StardewValley;
 using StardewWebApi.Game;
 using StardewWebApi.Game.Items;
 using StardewWebApi.Server;
+using StardewWebApi.Server.Routing;
 
 namespace StardewWebApi.Api.V1;
 
 public class UIApi : ApiControllerBase
 {
-    [ApiEndpoint("/ui/showHudMessage")]
+    [Route("/ui/showHudMessage")]
     public void ShowHUDMessage(string message, HUDMessageType? type = null, int? duration = null)
     {
         UIUtilities.ShowHUDMessage(message, type, duration);
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/ui/showHudMessage/item")]
+    [Route("/ui/showHudMessage/item")]
     public void ShowHUDMessageForItem(
         string message,
         int? duration = null,
@@ -59,14 +60,14 @@ public class UIApi : ApiControllerBase
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/ui/showHudMessage/large")]
+    [Route("/ui/showHudMessage/large")]
     public void ShowLargeHUDMessage(string message)
     {
         UIUtilities.ShowLargeHUDMessage(message);
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/ui/showChatMessage")]
+    [Route("/ui/showChatMessage")]
     public void ShowChatMessage(string message, ChatMessageType type = ChatMessageType.None)
     {
         UIUtilities.ShowChatMessage(message, type);

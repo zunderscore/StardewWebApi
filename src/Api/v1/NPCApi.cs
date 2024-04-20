@@ -1,13 +1,14 @@
 using StardewWebApi.Game;
 using StardewWebApi.Game.NPCs;
 using StardewWebApi.Server;
+using StardewWebApi.Server.Routing;
 
 namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
 public class NPCApi : ApiControllerBase
 {
-    [ApiEndpoint("/npcs")]
+    [Route("/npcs")]
     public void GetAllNPCs()
     {
         Response.Ok(NPCUtilities.GetAllNPCs()
@@ -15,7 +16,7 @@ public class NPCApi : ApiControllerBase
         ));
     }
 
-    [ApiEndpoint("/npcs/name")]
+    [Route("/npcs/name/{name}")]
     public void GetNPCByName(string name)
     {
         var npc = NPCInfo.FromNPCName(name);
@@ -30,7 +31,7 @@ public class NPCApi : ApiControllerBase
         }
     }
 
-    [ApiEndpoint("/npcs/birthday")]
+    [Route("/npcs/birthday/{season}/{day}")]
     public void GetNPCByBirthday(string season, int day)
     {
         var npcs = NPCUtilities.GetNPCsByBirthday(season, day)
@@ -39,7 +40,7 @@ public class NPCApi : ApiControllerBase
         Response.Ok(npcs);
     }
 
-    [ApiEndpoint("/npcs/pets")]
+    [Route("/npcs/pets")]
     public void GetAllPets()
     {
         var npcs = NPCUtilities.GetAllNPCsOfType(NPCType.Pet)

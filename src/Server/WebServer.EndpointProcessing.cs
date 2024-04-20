@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Routing;
 using StardewValley;
 using StardewWebApi.Game;
-using System.Collections;
+using StardewWebApi.Server.Routing;
 using System.Net;
 using System.Reflection;
 
@@ -9,31 +9,31 @@ namespace StardewWebApi.Server;
 
 internal partial class WebServer
 {
-    private static void ProcessEndpointRequest(MethodInfo endpoint, HttpListenerContext context)
+    private static void ProcessEndpointRequest(MatchedRoute route, HttpListenerContext context)
     {
-        if ((endpoint.GetCustomAttribute<RequireLoadedGameAttribute>() is not null
-            || endpoint.DeclaringType?.GetCustomAttribute<RequireLoadedGameAttribute>() is not null)
+        if ((route.Method.GetCustomAttribute<RequireLoadedGameAttribute>() is not null
+            || route.Method.DeclaringType?.GetCustomAttribute<RequireLoadedGameAttribute>() is not null)
             && !Game1.hasLoadedGame)
         {
             context.Response.BadRequest("No save loaded. Please load a save and try again.");
             return;
         }
 
-        var controller = Activator.CreateInstance(endpoint.DeclaringType!);
+        var controller = Activator.CreateInstance(route.Method.DeclaringType!);
         (controller as ApiControllerBase)!.HttpContext = context;
 
-        if (TryPopulateEndpointParameters(endpoint, context, out var parameters))
+        if (TryPopulateEndpointParameters(route, context, out var parameters))
         {
-            endpoint.Invoke(controller, parameters);
+            route.Method.Invoke(controller, parameters);
         }
     }
 
-    private static bool TryPopulateEndpointParameters(MethodInfo endpoint, HttpListenerContext context, out object?[]? outParams)
+    private static bool TryPopulateEndpointParameters(MatchedRoute route, HttpListenerContext context, out object?[]? outParams)
     {
         try
         {
             var sortedParams = new SortedDictionary<int, ParameterInfo>(
-                endpoint.GetParameters().ToDictionary(p => p.Position)
+                route.Method.GetParameters().ToDictionary(p => p.Position)
             );
 
             var parameters = new List<object?>();
@@ -42,61 +42,40 @@ internal partial class WebServer
             {
                 foreach (var param in sortedParams.Values)
                 {
-                    if (context.Request.QueryString[param.Name] is null)
+                    if (route.Parameters.ContainsKey(param.Name!))
                     {
-                        if (param.IsOptional)
-                        {
-                            parameters.Add(param.DefaultValue);
-                            continue;
-                        }
-                        else
-                        {
-                            context.Response.BadRequest($"Missing parameter: {param.Name}");
-                            outParams = null;
-                            return false;
-                        }
-                    }
-
-                    if (param.ParameterType.IsEnum || Nullable.GetUnderlyingType(param.ParameterType)?.IsEnum == true)
-                    {
-                        var enumType = (param.ParameterType.IsNullable()
-                            ? Nullable.GetUnderlyingType(param.ParameterType)
-                            : param.ParameterType)!;
-
-                        if (Enum.TryParse(enumType, context.Request.QueryString[param.Name], true, out var result)
-                            && ((result is null && param.ParameterType.IsNullable())
-                                 || (result is not null && Enum.IsDefined(enumType, result))
-                            )
-                        )
+                        if (TryParseParameter(param, route.Parameters[param.Name!], out var result))
                         {
                             parameters.Add(result);
                             continue;
                         }
                         else
                         {
-                            context.Response.BadRequest($"'{context.Request.QueryString[param.Name]}' is not a valid value for {param.Name}");
+                            context.Response.BadRequest($"'{route.Parameters[param.Name!]}' is not a valid value for {param.Name}");
                             outParams = null;
                             return false;
                         }
                     }
 
-                    if (UrlValueConstraint.TryGetByTargetType(param.ParameterType, out var constraint))
+                    if (context.Request.QueryString[param.Name!] is null && !param.IsOptional)
                     {
-                        if (constraint.TryParse(context.Request.QueryString[param.Name]!, out var result))
-                        {
-                            parameters.Add(result);
-                            continue;
-                        }
-                        else
-                        {
-                            context.Response.BadRequest($"'{context.Request.QueryString[param.Name]}' is not a valid value for {param.Name}");
-                            outParams = null;
-                            return false;
-                        }
+                        context.Response.BadRequest($"Missing required parameter: {param.Name}");
+                        outParams = null;
+                        return false;
                     }
                     else
                     {
-                        parameters.Add(Activator.CreateInstance(param.ParameterType));
+                        if (TryParseParameter(param, context.Request.QueryString[param.Name!], out var result))
+                        {
+                            parameters.Add(result);
+                            continue;
+                        }
+                        else
+                        {
+                            context.Response.BadRequest($"'{context.Request.QueryString[param.Name!]}' is not a valid value for {param.Name}");
+                            outParams = null;
+                            return false;
+                        }
                     }
                 }
             }
@@ -106,12 +85,68 @@ internal partial class WebServer
         }
         catch (Exception ex)
         {
-            SMAPIWrapper.Instance.Log($"Error populating endpoint parameters: {ex.Message}");
+            SMAPIWrapper.Instance.Log($"Error populating route parameters: {ex.Message}");
             context.Response.ServerError(ex.Message);
         }
 
         outParams = null;
         return false;
+    }
+
+    private static bool TryParseParameter(ParameterInfo param, string? value, out object? result)
+    {
+        if (String.IsNullOrEmpty(value))
+        {
+            if (param.IsOptional)
+            {
+                result = param.DefaultValue;
+                return true;
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        if (param.ParameterType.IsEnum || Nullable.GetUnderlyingType(param.ParameterType)?.IsEnum == true)
+        {
+            var enumType = (param.ParameterType.IsNullable()
+                ? Nullable.GetUnderlyingType(param.ParameterType)
+                : param.ParameterType)!;
+
+            if (Enum.TryParse(enumType, value, true, out result)
+                && ((result is null && param.ParameterType.IsNullable())
+                     || (result is not null && Enum.IsDefined(enumType, result))
+                )
+            )
+            {
+                return true;
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        if (UrlValueConstraint.TryGetByTargetType(param.ParameterType, out var constraint))
+        {
+            if (constraint.TryParse(value, out result))
+            {
+                return true;
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
+        }
+        else
+        {
+            result = Activator.CreateInstance(param.ParameterType);
+            return true;
+        }
     }
 }
 

@@ -1,74 +1,70 @@
-using StardewValley;
 using StardewWebApi.Game;
 using StardewWebApi.Game.Actions;
 using StardewWebApi.Game.Items;
 using StardewWebApi.Server;
+using StardewWebApi.Server.Routing;
 
 namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
 public class ActionsApi : ApiControllerBase
 {
-    [ApiEndpoint("/action/refillEnergy")]
+    [Route("/action/refillEnergy")]
     public void RefillEnergy()
     {
         PlayerActions.RefillEnergy();
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/action/passOut")]
+    [Route("/action/passOut")]
     public void PassOut()
     {
         PlayerActions.PassOut();
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/action/fullyHeal")]
+    [Route("/action/fullyHeal")]
     public void FullyHeal()
     {
         PlayerActions.FullyHeal();
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/action/knockOut")]
+    [Route("/action/knockOut")]
     public void KnockOut()
     {
         PlayerActions.KnockOut();
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/action/giveMoney")]
+    [Route("/action/giveMoney/{amount}")]
     public void GiveMoney(int amount = 1000)
     {
         PlayerActions.GiveMoney(amount);
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/action/giveItem")]
-    public void GiveItem(string? itemId = null, string? itemName = null, int amount = 1, int quality = 0)
+    [Route("/action/giveItem/id/{itemId}")]
+    public void GiveItemById(string itemId, int amount = 1, int quality = 0)
     {
-        Item? item;
-        if (itemId is not null)
+        var item = ItemUtilities.GetItemByFullyQualifiedId(itemId, amount, quality);
+        if (item is null)
         {
-            item = ItemUtilities.GetItemByFullyQualifiedId(itemId, amount, quality);
-            if (item is null)
-            {
-                Response.BadRequest($"Item with ID '{itemId}' does not exist");
-                return;
-            }
+            Response.BadRequest($"Item with ID '{itemId}' does not exist");
+            return;
         }
-        else if (itemName is not null)
+
+        PlayerActions.GiveItem(item);
+        Response.Ok(new ActionResult(true, BasicItem.FromItem(item)));
+    }
+
+    [Route("/action/giveItem/name/{itemName}")]
+    public void GiveItemByName(string itemName, int amount = 1, int quality = 0)
+    {
+        var item = ItemUtilities.GetItemByDisplayName(itemName, amount, quality);
+        if (item is null)
         {
-            item = ItemUtilities.GetItemByDisplayName(itemName, amount, quality);
-            if (item is null)
-            {
-                Response.BadRequest($"Item with name '{itemName}' does not exist");
-                return;
-            }
-        }
-        else
-        {
-            Response.BadRequest($"Either {nameof(itemId)} or {nameof(itemName)} must be specified");
+            Response.BadRequest($"Item with name '{itemName}' does not exist");
             return;
         }
 
@@ -76,20 +72,13 @@ public class ActionsApi : ApiControllerBase
         Response.Ok(new ActionResult(true));
     }
 
-    [ApiEndpoint("/action/warpPlayer")]
+    [Route("/action/warpPlayer/{location}")]
     public void WarpPlayer(WarpLocation location, bool playWarpAnimation = true)
     {
-        if (Enum.IsDefined(location))
-        {
-            Response.Ok(PlayerActions.WarpPlayer(location, playWarpAnimation));
-        }
-        else
-        {
-            Response.BadRequest("Invalid location specified");
-        }
+        Response.Ok(PlayerActions.WarpPlayer(location, playWarpAnimation));
     }
 
-    [ApiEndpoint("/action/petFarmAnimal")]
+    [Route("/action/petFarmAnimal/{name}")]
     public void PetFarmAnimal(string name)
     {
         Response.Ok(PlayerActions.PetFarmAnimal(name));
