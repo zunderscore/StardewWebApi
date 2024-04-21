@@ -7,7 +7,7 @@ namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
 [Route("/npcs")]
-public class NPCApi : ApiControllerBase
+public class NPCController : ApiControllerBase
 {
     [Route("/")]
     public void GetAllNPCs()

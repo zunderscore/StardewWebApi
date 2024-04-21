@@ -7,7 +7,7 @@ namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
 [Route("/items")]
-public class ItemsApi : ApiControllerBase
+public class ItemsController : ApiControllerBase
 {
     [Route("/")]
     public void GetAllItems()

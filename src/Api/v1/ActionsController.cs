@@ -8,7 +8,7 @@ namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
 [Route("/action")]
-public class ActionsApi : ApiControllerBase
+public class ActionsController : ApiControllerBase
 {
     [Route("/refillEnergy")]
     public void RefillEnergy()

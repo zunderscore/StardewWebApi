@@ -8,7 +8,7 @@ namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
 [Route("/info")]
-public class InfoApi : ApiControllerBase
+public class InfoController : ApiControllerBase
 {
     [Route("/player")]
     public void GetPlayerInfo()

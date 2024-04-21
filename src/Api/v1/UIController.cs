@@ -7,7 +7,7 @@ using StardewWebApi.Server.Routing;
 namespace StardewWebApi.Api.V1;
 
 [Route("/ui")]
-public class UIApi : ApiControllerBase
+public class UIController : ApiControllerBase
 {
     [Route("/showHudMessage")]
     public void ShowHUDMessage(string message, HUDMessageType? type = null, int? duration = null)
