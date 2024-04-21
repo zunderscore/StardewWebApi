@@ -11,6 +11,13 @@ It's my first game mod, so be gentle.
 - `/info/player`: Information about the current player
 - `/info/world`: Information about the world, including in-game date and farm weather
 
+### Item Info
+
+- `/items`: A basic list of all items registered in the game
+- `/items/id/{itemId}`: Get an item by its fully qualified ID (e.g. `(F)1365`)
+- `/items/type/{itemType}`: A basic list of all items of the given type (e.g. `F` for furniture)
+- `/items/type/{itemType}/id/{itemId}`: Get an item by its type and individual ID (e.g. `F` for furniture type and `1365` for individual ID)
+
 ### NPC Info
 
 - `/npcs`: Gets a basic list of all named NPCs
