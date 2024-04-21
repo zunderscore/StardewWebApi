@@ -25,7 +25,7 @@ internal partial class WebServer
 
     private MatchedRoute? FindRoute(HttpListenerRequest request)
     {
-        var path = (request.Url?.AbsolutePath ?? "").ToLower();
+        var path = request.Url?.AbsolutePath ?? "";
         var route = _routes.Keys.FirstOrDefault(r => r.MatchesStaticRoute(path));
 
         return route is not null
