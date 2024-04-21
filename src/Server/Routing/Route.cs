@@ -53,7 +53,7 @@ internal class Route : IComparable<Route>, IEquatable<Route>
         {
             if (Components[x] is StaticRouteComponent staticRouteComponent)
             {
-                if (staticRouteParts[x] == staticRouteComponent.Value.ToLower())
+                if (staticRouteParts[x].ToLower() == staticRouteComponent.Value.ToLower())
                 {
                     continue;
                 }
@@ -170,5 +170,10 @@ internal class Route : IComparable<Route>, IEquatable<Route>
     public override int GetHashCode()
     {
         return base.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return $"/{String.Join('/', Components)}";
     }
 }

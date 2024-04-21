@@ -19,4 +19,6 @@ internal class StaticRouteComponent : RouteComponent, IEquatable<StaticRouteComp
     public static bool operator !=(StaticRouteComponent a, StaticRouteComponent b) => !(a == b);
 
     public override int GetHashCode() => base.GetHashCode();
+
+    public override string ToString() => Value;
 }

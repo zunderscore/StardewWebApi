@@ -7,44 +7,45 @@ using StardewWebApi.Server.Routing;
 namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
+[Route("/action")]
 public class ActionsApi : ApiControllerBase
 {
-    [Route("/action/refillEnergy")]
+    [Route("/refillEnergy")]
     public void RefillEnergy()
     {
         PlayerActions.RefillEnergy();
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/action/passOut")]
+    [Route("/passOut")]
     public void PassOut()
     {
         PlayerActions.PassOut();
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/action/fullyHeal")]
+    [Route("/fullyHeal")]
     public void FullyHeal()
     {
         PlayerActions.FullyHeal();
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/action/knockOut")]
+    [Route("/knockOut")]
     public void KnockOut()
     {
         PlayerActions.KnockOut();
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/action/giveMoney/{amount}")]
+    [Route("/giveMoney/{amount}")]
     public void GiveMoney(int amount = 1000)
     {
         PlayerActions.GiveMoney(amount);
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/action/giveItem/id/{itemId}")]
+    [Route("/giveItem/id/{itemId}")]
     public void GiveItemById(string itemId, int amount = 1, int quality = 0)
     {
         var item = ItemUtilities.GetItemByFullyQualifiedId(itemId, amount, quality);
@@ -58,7 +59,7 @@ public class ActionsApi : ApiControllerBase
         Response.Ok(new ActionResult(true, BasicItem.FromItem(item)));
     }
 
-    [Route("/action/giveItem/name/{itemName}")]
+    [Route("/giveItem/name/{itemName}")]
     public void GiveItemByName(string itemName, int amount = 1, int quality = 0)
     {
         var item = ItemUtilities.GetItemByDisplayName(itemName, amount, quality);
@@ -72,13 +73,13 @@ public class ActionsApi : ApiControllerBase
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/action/warpPlayer/{location}")]
+    [Route("/warpPlayer/{location}")]
     public void WarpPlayer(WarpLocation location, bool playWarpAnimation = true)
     {
         Response.Ok(PlayerActions.WarpPlayer(location, playWarpAnimation));
     }
 
-    [Route("/action/petFarmAnimal/{name}")]
+    [Route("/petFarmAnimal/{name}")]
     public void PetFarmAnimal(string name)
     {
         Response.Ok(PlayerActions.PetFarmAnimal(name));

@@ -7,15 +7,16 @@ using StardewWebApi.Server.Routing;
 namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
+[Route("/info")]
 public class InfoApi : ApiControllerBase
 {
-    [Route("/info/player")]
+    [Route("/player")]
     public void GetPlayerInfo()
     {
         Response.Ok(Player.FromMain());
     }
 
-    [Route("/info/world")]
+    [Route("/world")]
     public void GetWorldInfo()
     {
         Response.Ok(GameInfo.GetWorldInfo());

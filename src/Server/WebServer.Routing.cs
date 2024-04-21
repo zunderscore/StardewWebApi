@@ -10,17 +10,32 @@ internal partial class WebServer
 
     private void CreateRouteTable()
     {
+        var apiControllers =
         Assembly.GetCallingAssembly()
             .GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(ApiControllerBase)))
-            .SelectMany(t => t.GetMethods())
-            .Where(m => m.GetCustomAttribute(typeof(RouteAttribute), false) is not null)
-            .ToList()
-            .ForEach(m =>
+            .Where(t => t.IsSubclassOf(typeof(ApiControllerBase)));
+
+        foreach (var controller in apiControllers)
+        {
+            var classRouteAttribute = controller.GetCustomAttribute(typeof(RouteAttribute), false) as RouteAttribute;
+            var methods = controller.GetMethods()
+                .Where(m => m.GetCustomAttribute(typeof(RouteAttribute), false) is not null);
+
+            foreach (var m in methods)
             {
                 var routeAttribute = m.GetCustomAttribute(typeof(RouteAttribute), false) as RouteAttribute;
-                _routes.Add(new Route(routeAttribute!.Path), m);
-            });
+
+                if (classRouteAttribute is not null)
+                {
+                    var fullPath = classRouteAttribute.Path.AppendAsUri(routeAttribute!.Path);
+                    _routes.Add(new Route(fullPath), m);
+                }
+                else
+                {
+                    _routes.Add(new Route(routeAttribute!.Path), m);
+                }
+            }
+        }
     }
 
     private MatchedRoute? FindRoute(HttpListenerRequest request)
@@ -31,5 +46,13 @@ internal partial class WebServer
         return route is not null
             ? new MatchedRoute(route, _routes[route], path)
             : null;
+    }
+}
+
+public static class UriStringExtensions
+{
+    public static string AppendAsUri(this string s, string other)
+    {
+        return $"{s.TrimEnd('/')}/{other.TrimStart('/')}";
     }
 }

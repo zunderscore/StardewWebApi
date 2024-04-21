@@ -6,16 +6,17 @@ using StardewWebApi.Server.Routing;
 
 namespace StardewWebApi.Api.V1;
 
+[Route("/ui")]
 public class UIApi : ApiControllerBase
 {
-    [Route("/ui/showHudMessage")]
+    [Route("/showHudMessage")]
     public void ShowHUDMessage(string message, HUDMessageType? type = null, int? duration = null)
     {
         UIUtilities.ShowHUDMessage(message, type, duration);
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/ui/showHudMessage/item")]
+    [Route("/showHudMessage/item")]
     public void ShowHUDMessageForItem(
         string message,
         int? duration = null,
@@ -60,14 +61,14 @@ public class UIApi : ApiControllerBase
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/ui/showHudMessage/large")]
+    [Route("/showHudMessage/large")]
     public void ShowLargeHUDMessage(string message)
     {
         UIUtilities.ShowLargeHUDMessage(message);
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/ui/showChatMessage")]
+    [Route("/showChatMessage")]
     public void ShowChatMessage(string message, ChatMessageType type = ChatMessageType.None)
     {
         UIUtilities.ShowChatMessage(message, type);

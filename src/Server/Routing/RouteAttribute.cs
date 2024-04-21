@@ -1,6 +1,6 @@
 namespace StardewWebApi.Server.Routing;
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public class RouteAttribute : Attribute
 {
     public RouteAttribute(string path, string method = "GET")

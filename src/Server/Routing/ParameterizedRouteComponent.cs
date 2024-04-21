@@ -18,4 +18,6 @@ internal class ParameterizedRouteComponent : RouteComponent
     public static bool operator !=(ParameterizedRouteComponent a, ParameterizedRouteComponent b) => !(a == b);
 
     public override int GetHashCode() => base.GetHashCode();
+
+    public override string ToString() => $"{{{Name}}}";
 }
