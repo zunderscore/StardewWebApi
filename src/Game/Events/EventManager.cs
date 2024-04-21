@@ -1,8 +1,5 @@
 using StardewModdingAPI.Events;
-using StardewValley;
 using StardewWebApi.Game.Events.Processors;
-using StardewWebApi.Game.Info;
-using StardewWebApi.Server;
 
 namespace StardewWebApi.Game.Events;
 

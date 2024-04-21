@@ -30,7 +30,15 @@ public record PlayerStartedDatingEventData(
     NPCStub NPC
 );
 
+public record PlayerStoppedDatingEventData(
+    NPCStub NPC
+);
+
 public record PlayerEngagedEventData(
+    NPCStub NPC
+);
+
+public record PlayerNoLongerEngagedEventData(
     NPCStub NPC
 );
 
@@ -79,12 +87,12 @@ internal class RelationshipEventProcessor : IEventProcessor
 
             if (Game1.player.friendshipData[name].IsDating() != _relationships[name].IsDating)
             {
-                TriggerStartedDating(name);
+                TriggerDatingChanged(name);
             }
 
             if (Game1.player.friendshipData[name].IsEngaged() != _relationships[name].IsEngaged)
             {
-                TriggerEngaged(name);
+                TriggerEngagementChanged(name);
             }
         }
 
@@ -162,18 +170,36 @@ internal class RelationshipEventProcessor : IEventProcessor
         WebServer.Instance.SendGameEvent("MultipleFriendshipsDecreased", BuildRelationshipChangeData(names));
     }
 
-    private void TriggerStartedDating(string name)
+    private void TriggerDatingChanged(string name)
     {
-        WebServer.Instance.SendGameEvent("PlayerStartedDating", new PlayerStartedDatingEventData(
-            NPCUtilities.GetNPCByName(name)!.CreateStub()
-        ));
+        if (Game1.player.friendshipData[name].IsDating())
+        {
+            WebServer.Instance.SendGameEvent("PlayerStartedDating", new PlayerStartedDatingEventData(
+                NPCUtilities.GetNPCByName(name)!.CreateStub()
+            ));
+        }
+        else
+        {
+            WebServer.Instance.SendGameEvent("PlayerStoppedDating", new PlayerStoppedDatingEventData(
+                NPCUtilities.GetNPCByName(name)!.CreateStub()
+            ));
+        }
     }
 
-    private void TriggerEngaged(string name)
+    private void TriggerEngagementChanged(string name)
     {
-        WebServer.Instance.SendGameEvent("PlayerEngaged", new PlayerEngagedEventData(
-            NPCUtilities.GetNPCByName(name)!.CreateStub()
-        ));
+        if (Game1.player.friendshipData[name].IsEngaged())
+        {
+            WebServer.Instance.SendGameEvent("PlayerEngaged", new PlayerEngagedEventData(
+                NPCUtilities.GetNPCByName(name)!.CreateStub()
+            ));
+        }
+        else
+        {
+            WebServer.Instance.SendGameEvent("PlayerNoLongerEngaged", new PlayerNoLongerEngagedEventData(
+                NPCUtilities.GetNPCByName(name)!.CreateStub()
+            ));
+        }
     }
 
     private void TriggerSpouseChanged()
