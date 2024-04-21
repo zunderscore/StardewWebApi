@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using StardewValley;
 using StardewValley.Extensions;
 
@@ -5,6 +6,32 @@ namespace StardewWebApi.Game.Items;
 
 public static class ItemUtilities
 {
+    public static List<Item> GetAllItems()
+    {
+        return ItemRegistry.ItemTypes
+            .SelectMany(it => it.GetAllData().Select(id => it.CreateItem(id)))
+            .ToList();
+    }
+
+    public static List<Item> GetAllItemsByType(string itemType)
+    {
+        // Wrap it in parenteses if it isn't already, since item type identifiers require them
+        if (!Regex.IsMatch(itemType, @"^\(.*\)$")) itemType = $"({itemType})";
+
+        return ItemRegistry.ItemTypes
+            .Where(it => it.Identifier == itemType)
+            .SelectMany(it => it.GetAllData().Select(id => it.CreateItem(id)))
+            .ToList();
+    }
+
+    public static Item? GetItemByTypeAndId(string itemType, string itemId, int amount = 1, int quality = 0)
+    {
+        // Wrap it in parenteses if it isn't already, since item type identifiers require them
+        if (!Regex.IsMatch(itemType, @"^\(.*\)$")) itemType = $"({itemType})";
+
+        return GetItemByFullyQualifiedId($"{itemType}{itemId}");
+    }
+
     public static Item? GetItemByFullyQualifiedId(string itemId, int amount = 1, int quality = 0)
     {
         var itemMetadata = ItemRegistry.ResolveMetadata(itemId);
