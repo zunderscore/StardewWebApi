@@ -25,6 +25,11 @@ It's my first game mod, so be gentle.
 - `/npcs/birthday/{season}/{day}`: Gets a list of all NPCs whose birthday is on the specified day of the specified season
 - `/npcs/pets`: Gets a list of all pet NPCs
 
+### Mod Info
+
+- `/mods`: Gets a list of all installed mods
+- `/mods/{modId}`: Get info on a specific mod by its unique mod ID (e.g. `zunderscore.StardewWebApi`)
+
 ## Actions
 
 ### UI Actions

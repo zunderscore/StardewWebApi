@@ -24,4 +24,9 @@ public class SMAPIWrapper
     {
         Monitor?.Log(message, logLevel);
     }
+
+    public IEnumerable<IModInfo> GetAllMods()
+    {
+        return Helper.ModRegistry.GetAll();
+    }
 }
