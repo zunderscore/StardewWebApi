@@ -1,6 +1,6 @@
 # Stardew Valley Web API
 
-A mod for Stardew Valley that provides access to some game basic information, actions, and events via an HTTP interface.
+A mod for Stardew Valley that provides access to some game basic information, actions, and events via an HTTP interface listening at `http://localhost:7882/`.
 
 It's my first game mod, so be gentle.
 
