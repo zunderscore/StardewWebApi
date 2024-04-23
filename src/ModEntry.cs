@@ -19,7 +19,7 @@ public class ModEntry : Mod
 
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
     {
-        SMAPIWrapper.Instance.Log("Starting web server");
+        SMAPIWrapper.LogDebug("Starting web server");
         WebServer.Instance.StartWebServer();
 
         _eventManager = new EventManager();

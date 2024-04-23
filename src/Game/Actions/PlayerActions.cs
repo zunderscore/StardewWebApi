@@ -167,7 +167,7 @@ public static class PlayerActions
         }
         catch (Exception ex)
         {
-            SMAPIWrapper.Instance.Log($"Error warping player: {ex.Message}", StardewModdingAPI.LogLevel.Error);
+            SMAPIWrapper.LogError($"Error warping player: {ex.Message}");
             result = new(false, new ErrorResponse(ex.Message));
         }
 

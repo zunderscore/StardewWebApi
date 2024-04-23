@@ -49,7 +49,7 @@ internal partial class WebServer
         }
         catch (Exception ex)
         {
-            SMAPIWrapper.Instance.Log($"Error processing WebSocket request: {ex.Message}");
+            SMAPIWrapper.LogError($"Error processing WebSocket request: {ex.Message}");
             context.Response.ServerError(ex);
         }
     }

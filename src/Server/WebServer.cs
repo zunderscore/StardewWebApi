@@ -9,6 +9,13 @@ internal partial class WebServer
 {
     private WebServer()
     {
+        // IPv6 binding on Linux doesn't work like this, so only bind this on Windows
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT
+            && System.Net.Sockets.Socket.OSSupportsIPv6)
+        {
+            _listener.Prefixes.Add("http://[::1]:7882/");
+        }
+
         CreateRouteTable();
     }
 
@@ -19,7 +26,7 @@ internal partial class WebServer
 
     private readonly HttpListener _listener = new()
     {
-        Prefixes = { "http://localhost:7882/", "http://127.0.0.1:7882/", "http://[::1]:7882/" }
+        Prefixes = { "http://localhost:7882/", "http://127.0.0.1:7882/" }
     };
 
     public static readonly JsonSerializerOptions SerializerOptions = new()
@@ -40,7 +47,14 @@ internal partial class WebServer
 
     private void MainLoop()
     {
-        _listener.Start();
+        try
+        {
+            _listener.Start();
+        }
+        catch (Exception ex)
+        {
+            SMAPIWrapper.LogError($"Error starting web server: {ex.Message}");
+        }
 
         var sem = new SemaphoreSlim(20, 20);
 
@@ -59,10 +73,16 @@ internal partial class WebServer
                         var ctx = await t;
                         await ProcessRequest(ctx);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        SMAPIWrapper.LogError($"Error processing request: {ex.Message}");
+                    }
                 });
             }
-            catch { }
+            catch (Exception ex)
+            {
+                SMAPIWrapper.LogError($"Error getting web server context: {ex.Message}");
+            }
         }
 
         _listener.Stop();
@@ -74,7 +94,7 @@ internal partial class WebServer
 
         try
         {
-            SMAPIWrapper.Instance.Log($"Received request for {context.Request.Url}");
+            SMAPIWrapper.LogDebug($"Received request for {context.Request.Url}");
 
             var path = (context.Request.Url?.AbsolutePath ?? "").ToLower();
 
@@ -100,18 +120,18 @@ internal partial class WebServer
 
             if (route is not null)
             {
-                SMAPIWrapper.Instance.Log($"Found matching route for {context.Request.Url!.AbsolutePath}");
+                SMAPIWrapper.LogDebug($"Found matching route for {context.Request.Url!.AbsolutePath}");
                 ProcessEndpointRequest(route, context);
             }
             else
             {
-                SMAPIWrapper.Instance.Log($"No matching route found for {context.Request.Url!.AbsolutePath}");
+                SMAPIWrapper.LogDebug($"No matching route found for {context.Request.Url!.AbsolutePath}");
                 response.NotFound();
             }
         }
         catch (Exception ex)
         {
-            SMAPIWrapper.Instance.Log($"Error processing request: {ex.Message}");
+            SMAPIWrapper.LogError($"Error processing request: {ex.Message}");
             response.ServerError(ex);
         }
     }

@@ -20,9 +20,34 @@ public class SMAPIWrapper
         Helper = helper;
     }
 
-    public void Log(string message, LogLevel logLevel = LogLevel.Trace)
+    public static void LogAlert(string message)
     {
-        Monitor?.Log(message, logLevel);
+        Instance.Monitor?.Log(message, LogLevel.Alert);
+    }
+
+    public static void LogError(string message)
+    {
+        Instance.Monitor?.Log(message, LogLevel.Error);
+    }
+
+    public static void LogWarn(string message)
+    {
+        Instance.Monitor?.Log(message, LogLevel.Warn);
+    }
+
+    public static void LogInfo(string message)
+    {
+        Instance.Monitor?.Log(message, LogLevel.Info);
+    }
+
+    public static void LogDebug(string message)
+    {
+        Instance.Monitor?.Log(message, LogLevel.Debug);
+    }
+
+    public static void LogTrace(string message)
+    {
+        Instance.Monitor?.Log(message, LogLevel.Trace);
     }
 
     public IEnumerable<IModInfo> GetAllMods()
