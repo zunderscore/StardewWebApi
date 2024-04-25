@@ -6,7 +6,7 @@ using StardewWebApi.Server.Routing;
 namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
-[Route("/npcs")]
+[Route("/api/v1/npcs")]
 public class NPCController : ApiControllerBase
 {
     [Route("/")]

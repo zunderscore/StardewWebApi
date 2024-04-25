@@ -4,7 +4,7 @@ using StardewValley.Extensions;
 using StardewWebApi.Game.Animals;
 using StardewWebApi.Server;
 
-namespace StardewWebApi.Game.Actions;
+namespace StardewWebApi.Game.Players;
 
 public enum WarpLocation
 {

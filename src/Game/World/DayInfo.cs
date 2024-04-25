@@ -1,7 +1,7 @@
 using StardewValley;
 using StardewWebApi.Game.NPCs;
 
-namespace StardewWebApi.Game.Info;
+namespace StardewWebApi.Game.World;
 
 public record DayInfo(
     Date Date,

@@ -5,7 +5,7 @@ using StardewWebApi.Server.Routing;
 
 namespace StardewWebApi.Api.V1;
 
-[Route("/mods")]
+[Route("/api/v1/mods")]
 public class ModController : ApiControllerBase
 {
     [Route("/")]

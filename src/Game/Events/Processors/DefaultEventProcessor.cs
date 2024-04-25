@@ -1,6 +1,6 @@
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewWebApi.Game.Info;
+using StardewWebApi.Game.World;
 using StardewWebApi.Game.Items;
 using StardewWebApi.Game.NPCs;
 using StardewWebApi.Server;

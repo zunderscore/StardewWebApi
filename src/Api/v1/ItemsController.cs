@@ -6,7 +6,7 @@ using StardewWebApi.Server.Routing;
 namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
-[Route("/items")]
+[Route("/api/v1/items")]
 public class ItemsController : ApiControllerBase
 {
     [Route("/")]
