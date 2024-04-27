@@ -64,7 +64,9 @@ It's my first game mod, so be gentle.
 
 ### World Actions
 
-- `/api/v1/world/actions/playSound`: Plays a sound in game
+- `/api/v1/world/actions/playSound/{name}`: Plays a sound in game
+- `/api/v1/world/actions/playMusicTrack/{name}`: Plays a music track in game
+- `/api/v1/world/actions/stopMusicTrack`: Stops the currently playing music track
 
 ## Events
 
