@@ -22,6 +22,7 @@ public class NPCStub
 
     public string Name { get; }
     public NPCType Type { get; }
+    public string Url => $"/api/v1/npcs/name/{Name}";
 }
 
 public static class NPCStubExtensions

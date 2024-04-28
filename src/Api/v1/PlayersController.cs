@@ -7,51 +7,57 @@ using StardewWebApi.Server.Routing;
 namespace StardewWebApi.Api.V1;
 
 [RequireLoadedGame]
-[Route("/api/v1/player")]
-public class PlayerController : ApiControllerBase
+[Route("/api/v1/players")]
+public class PlayersController : ApiControllerBase
 {
-    [Route("/")]
-    public void GetPlayerInfo()
+    [Route("/main")]
+    public void GetMainPlayerInfo()
     {
-        Response.Ok(Player.FromMain());
+        Response.Ok(Player.Main);
     }
 
-    [Route("/actions/refillEnergy")]
+    [Route("/main/inventory")]
+    public void GetMainPlayerInventory()
+    {
+        Response.Ok(Player.Main.GetInventory());
+    }
+
+    [Route("/main/actions/refillEnergy")]
     public void RefillEnergy()
     {
-        PlayerActions.RefillEnergy();
+        Player.Main.RefillEnergy();
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/actions/passOut")]
+    [Route("/main/actions/passOut")]
     public void PassOut()
     {
-        PlayerActions.PassOut();
+        Player.Main.PassOut();
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/actions/fullyHeal")]
+    [Route("/main/actions/fullyHeal")]
     public void FullyHeal()
     {
-        PlayerActions.FullyHeal();
+        Player.Main.FullyHeal();
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/actions/knockOut")]
+    [Route("/main/actions/knockOut")]
     public void KnockOut()
     {
-        PlayerActions.KnockOut();
+        Player.Main.KnockOut();
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/actions/giveMoney/{amount}")]
+    [Route("/main/actions/giveMoney/{amount}")]
     public void GiveMoney(int amount = 1000)
     {
-        PlayerActions.GiveMoney(amount);
+        Player.Main.GiveMoney(amount);
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/actions/giveItem/id/{itemId}")]
+    [Route("/main/actions/giveItem/id/{itemId}")]
     public void GiveItemById(string itemId, int amount = 1, int quality = 0)
     {
         var item = ItemUtilities.GetItemByFullyQualifiedId(itemId, amount, quality);
@@ -61,11 +67,11 @@ public class PlayerController : ApiControllerBase
             return;
         }
 
-        PlayerActions.GiveItem(item);
+        Player.Main.GiveItem(item);
         Response.Ok(new ActionResult(true, BasicItem.FromItem(item)));
     }
 
-    [Route("/actions/giveItem/name/{itemName}")]
+    [Route("/main/actions/giveItem/name/{itemName}")]
     public void GiveItemByName(string itemName, int amount = 1, int quality = 0)
     {
         var item = ItemUtilities.GetItemByDisplayName(itemName, amount, quality);
@@ -75,19 +81,19 @@ public class PlayerController : ApiControllerBase
             return;
         }
 
-        PlayerActions.GiveItem(item);
+        Player.Main.GiveItem(item);
         Response.Ok(new ActionResult(true));
     }
 
-    [Route("/actions/warpPlayer/{location}")]
+    [Route("/main/actions/warpPlayer/{location}")]
     public void WarpPlayer(WarpLocation location, bool playWarpAnimation = true)
     {
-        Response.Ok(PlayerActions.WarpPlayer(location, playWarpAnimation));
+        Response.Ok(Player.Main.WarpPlayer(location, playWarpAnimation));
     }
 
-    [Route("/actions/petFarmAnimal/{name}")]
+    [Route("/main/actions/petFarmAnimal/{name}")]
     public void PetFarmAnimal(string name)
     {
-        Response.Ok(PlayerActions.PetFarmAnimal(name));
+        Response.Ok(Player.Main.PetFarmAnimal(name));
     }
 }

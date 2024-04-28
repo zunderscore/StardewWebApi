@@ -6,7 +6,7 @@ using StardewWebApi.Server.Routing;
 namespace StardewWebApi.Api.V1;
 
 [Route("/api/v1/mods")]
-public class ModController : ApiControllerBase
+public class ModsController : ApiControllerBase
 {
     [Route("/")]
     public void GetMods()
