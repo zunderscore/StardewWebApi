@@ -42,6 +42,7 @@ It's my first game mod, so be gentle.
 ### Player Info
 
 - `/api/v1/players/main`: Information about the current player
+- `/api/v1/players/main/inventory`: Information about the current player's inventory
 
 ### Player Actions
 
