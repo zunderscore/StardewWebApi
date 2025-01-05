@@ -53,7 +53,7 @@ It's my first game mod, so be gentle.
 - `/api/v1/players/main/actions/giveMoney/{amount}`: Gives money to/takes money away from the player
 - `/api/v1/players/main/actions/giveItem/name/{itemName}`: Attempts to add the specified item to the player's inventory, using the item's display name
 - `/api/v1/players/main/actions/giveItem/id/{itemId}`: Same as above, but using the item's fully qualified ID (e.g. `(F)1365`) instead
-- `/api/v1/players/main/actions/warp/{location}`: Warps the player to the specified location
+- `/api/v1/players/main/actions/warpPlayer/{location}`: Warps the player to the specified location
 - `/api/v1/players/main/actions/petFarmAnimal/{name}`: Pets the named farm animal (i.e. chickens, cows, etc., but not pets like dogs, cats, or turtles)
 
 ## UI
